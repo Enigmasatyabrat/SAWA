@@ -21,7 +21,7 @@ const FAQ = [
   },
   {
     q: "Does the live analyzer on this site upload my photo anywhere?",
-    a: "No. The version embedded on the Analyzer page runs entirely in your browser using JavaScript — nothing leaves your device. The full deployed application (the actual product, separate from this showcase) does save results to MongoDB so its history panel works.",
+    a: "Yes. The image-quality and confidence checks run in your browser first, but if the photo passes, it is uploaded to SAWA's own API, which runs the analysis and saves the result to MongoDB. The photo itself is not stored — only the analysis (soil type, colours, nutrients, crops) and basic file metadata such as its name and size.",
   },
   {
     q: "Why only 15 crops in the database?",
