@@ -19,47 +19,66 @@ original backend — see `VALIDATION_SYSTEM_PROMPT.md` and `IMPROVEMENTS.md`.
 ## Stack
 
 Next.js 16 (App Router) - TypeScript - Tailwind CSS v4 - Framer Motion -
-Recharts - lucide-react. Configured for **static export**
-(`output: "export"` in `next.config.ts`), so the built output is plain
-HTML/CSS/JS with no server runtime required.
+Recharts - lucide-react - MongoDB - sharp.
+
+This is a **full-stack** app: it exposes server-side API routes backed by
+MongoDB (see [API.md](API.md)). It was previously a static export
+(`output: "export"`), which was removed because static export only supports
+build-time `GET` handlers and forbids reading the incoming request — making a
+`POST` analysis endpoint impossible. The app therefore needs a Node runtime
+and can no longer be served as plain static files.
 
 ## Local development
 
 ```bash
 npm install
+```
+
+Create `.env.local` in the project root (it is gitignored — never commit it):
+
+```
+MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/sawa_db?appName=Cluster0
+NEXT_PUBLIC_API_URL=http://localhost:3000
+NODE_ENV=development
+```
+
+```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`. Verify the database with
+`curl http://localhost:3000/api/test-db`.
 
 ## Production build
 
 ```bash
 npm run build
+npm run start
 ```
-
-Static files are written to `out/`. Any static host works.
 
 ## Deploying
 
 **Vercel (simplest):** push this folder to a GitHub repo and import it at
-vercel.com - it will detect Next.js automatically. No environment variables
-are required.
+vercel.com - it will detect Next.js automatically. Set `MONGODB_URI` in the
+project's environment variables; the API routes will not work without it.
 
-**Netlify / GitHub Pages / any static host:** run `npm run build`, then
-upload the contents of `out/` directly. Because this is a static export,
-every route needs a host that resolves extensionless paths like `/about` to
-`about.html` - Vercel and Netlify both do this by default. If you use a bare
-static file server instead, make sure it does the same (`npx serve out` does;
-Python's plain `http.server` does not).
+**Any Node host:** run `npm run build` then `npm run start`. A purely static
+host (GitHub Pages, plain file servers) is no longer sufficient, because the
+API routes need a server at request time.
 
 ## Project structure
 
 ```
 src/
   app/                 Next.js App Router pages (one folder per route)
+    api/
+      analyze-soil/     NEW. POST endpoint: image -> K-Means -> classification
+                         -> nutrients -> crops, persisted to MongoDB. Uses the
+                         real soil-engine functions, not a reimplementation.
+      test-db/          NEW. MongoDB connection healthcheck.
   components/          Shared UI: Navbar, Footer, AnalyzerClient, HeroVisual, ...
   lib/
+    mongodb.ts          NEW. Cached MongoClient shared by all API routes.
     soil-engine.ts      The ported analysis algorithm (K-Means, classification,
                          nutrient prediction, crop matching) - mirrors
                          backend/server.py exactly. See BUILD_LOG.md #1 for the
