@@ -14,13 +14,13 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import {
-  analyze,
   levelOf,
   pixelsFromImage,
   simulateSampleVariance,
   type AnalysisResult,
   type RGB,
 } from "@/lib/soil-engine";
+import { analyzeSoilWithBackend } from "@/lib/api-client";
 import {
   metricsFromImage,
   evaluateValidation,
@@ -46,7 +46,15 @@ type Stage = "idle" | "preview" | "analyzing" | "result";
 type Outcome =
   | { kind: "rejected"; report: ValidationReport }
   | { kind: "uncertain"; report: ValidationReport }
-  | { kind: "analyzed"; report: ValidationReport; result: AnalysisResult; soilEvidence: ClassificationEvidence };
+  | {
+      kind: "analyzed";
+      report: ValidationReport;
+      result: AnalysisResult;
+      soilEvidence: ClassificationEvidence;
+      /** MongoDB `_id` of the stored analysis, or null if the write failed. */
+      analysisId: string | null;
+      storageWarning?: string;
+    };
 
 // "Validate" is new — see VALIDATION_SYSTEM_PROMPT.md and BUILD_LOG.md for
 // why it exists and what it can/can't actually check client-side.
@@ -200,6 +208,70 @@ function GateOutcomePanel({
   );
 }
 
+/**
+ * Encode a pixel grid back into a PNG File so it can be POSTed to the API.
+ *
+ * Used for the bundled sample only: the fixture is flat by design, so the
+ * variance simulation has to travel to the server somehow. Uploading the exact
+ * grid the validator inspected also guarantees the gate and the backend see the
+ * same pixels. PNG (not JPEG) so lossy compression can't shift the colours.
+ */
+function fileFromPixels(pixels: RGB[], size: number, name: string): Promise<File> {
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return Promise.reject(new Error("Canvas is unavailable in this browser"));
+
+  const imageData = ctx.createImageData(size, size);
+  for (let i = 0; i < pixels.length; i++) {
+    const [r, g, b] = pixels[i];
+    imageData.data[i * 4] = r;
+    imageData.data[i * 4 + 1] = g;
+    imageData.data[i * 4 + 2] = b;
+    imageData.data[i * 4 + 3] = 255;
+  }
+  ctx.putImageData(imageData, 0, 0);
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) =>
+        blob
+          ? resolve(new File([blob], name, { type: "image/png" }))
+          : reject(new Error("Could not encode the sample image")),
+      "image/png"
+    );
+  });
+}
+
+/** Plays the stepper animation and resolves once it has finished. */
+function playSteps(
+  stepCount: number,
+  setActiveStep: (i: number) => void,
+  setDoneSteps: (i: number) => void
+): Promise<void> {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const stepDelay = reduceMotion ? 0 : 420;
+
+  return new Promise((resolve) => {
+    let i = 0;
+    const tick = () => {
+      setActiveStep(i);
+      setTimeout(() => {
+        setDoneSteps(i);
+        i++;
+        if (i < stepCount) {
+          tick();
+          return;
+        }
+        setActiveStep(-1);
+        resolve();
+      }, stepDelay);
+    };
+    tick();
+  });
+}
+
 export default function AnalyzerClient() {
   const [stage, setStage] = useState<Stage>("idle");
   const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -208,13 +280,19 @@ export default function AnalyzerClient() {
   const [activeStep, setActiveStep] = useState(-1);
   const [doneSteps, setDoneSteps] = useState<number>(-1);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  // The original upload is kept so it can be POSTed to the backend at full
+  // resolution — the preview data URI alone is no longer sufficient.
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const loadImage = useCallback((src: string, sample: boolean) => {
+  const loadImage = useCallback((src: string, sample: boolean, file: File | null) => {
     setImageSrc(src);
     setUsingSample(sample);
+    setSelectedFile(file);
     setStage("preview");
     setOutcome(null);
+    setError(null);
     setActiveStep(-1);
     setDoneSteps(-1);
   }, []);
@@ -223,7 +301,7 @@ export default function AnalyzerClient() {
     (file: File | undefined) => {
       if (!file || !/^image\//.test(file.type)) return;
       const reader = new FileReader();
-      reader.onload = (e) => loadImage(e.target?.result as string, false);
+      reader.onload = (e) => loadImage(e.target?.result as string, false, file);
       reader.readAsDataURL(file);
     },
     [loadImage]
@@ -232,7 +310,9 @@ export default function AnalyzerClient() {
   const reset = () => {
     setStage("idle");
     setImageSrc(null);
+    setSelectedFile(null);
     setOutcome(null);
+    setError(null);
     setActiveStep(-1);
     setDoneSteps(-1);
   };
@@ -241,8 +321,14 @@ export default function AnalyzerClient() {
     if (!imageSrc) return;
     setStage("analyzing");
     setOutcome(null);
+    setError(null);
+
     const img = new window.Image();
-    img.onload = () => {
+
+    img.onload = async () => {
+      // ---- Step 1-2: capture + validate. Still client-side: the gate needs the
+      // decoded <img> and is a UI concern, and it decides whether we call the
+      // backend at all — no point uploading an image we already know is unusable.
       let pixels: RGB[];
       let report: ValidationReport;
       try {
@@ -251,46 +337,67 @@ export default function AnalyzerClient() {
         const metrics = metricsFromImage(img, pixels, GRID_SIZE);
         report = evaluateValidation(metrics);
       } catch {
+        setError("This image could not be read in your browser. Try a different file.");
         setStage("preview");
         return;
       }
 
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const stepDelay = reduceMotion ? 0 : 420;
       // Steps 1 (Capture) and 2 (Validate) always run. If the gate doesn't
       // clear, the stepper stops there instead of continuing through
       // Extract/Classify/Predict/Recommend — nothing downstream runs on
       // an image the gate didn't accept.
-      const stepCount = report.verdict === "ok" ? STEPS.length : VALIDATE_STEP_INDEX + 1;
+      if (report.verdict !== "ok") {
+        await playSteps(VALIDATE_STEP_INDEX + 1, setActiveStep, setDoneSteps);
+        setOutcome({ kind: report.verdict, report });
+        setStage("result");
+        return;
+      }
 
-      let i = 0;
-      const tick = () => {
-        setActiveStep(i);
-        setTimeout(() => {
-          setDoneSteps(i);
-          i++;
-          if (i < stepCount) {
-            tick();
-            return;
-          }
-          setActiveStep(-1);
-          try {
-            if (report.verdict === "ok") {
-              const result = analyze(pixels);
-              const soilEvidence = explainSoilType(result.colors, result.percentages, result.soilType);
-              setOutcome({ kind: "analyzed", report, result, soilEvidence });
-            } else {
-              setOutcome({ kind: report.verdict, report });
-            }
-            setStage("result");
-          } catch {
-            setStage("preview");
-          }
-        }, stepDelay);
-      };
-      tick();
+      // ---- Steps 3-6: the analysis itself now runs on the server.
+      // Kick the request off immediately and let the stepper play alongside it,
+      // so the animation overlaps the network call instead of following it.
+      try {
+        const file = usingSample
+          ? await fileFromPixels(pixels, GRID_SIZE, "sample_soil.png")
+          : selectedFile;
+        if (!file) throw new Error("The selected image is no longer available. Please re-select it.");
+
+        const [response] = await Promise.all([
+          analyzeSoilWithBackend(file),
+          playSteps(STEPS.length, setActiveStep, setDoneSteps),
+        ]);
+
+        // Map the API's snake_case wire format onto the shape the UI renders.
+        const result: AnalysisResult = {
+          colors: response.dominant_colors,
+          percentages: response.color_percentages,
+          soilType: response.soil_type,
+          nutrients: response.nutrients,
+          crops: response.recommended_crops,
+        };
+        const soilEvidence = explainSoilType(result.colors, result.percentages, result.soilType);
+
+        setOutcome({
+          kind: "analyzed",
+          report,
+          result,
+          soilEvidence,
+          analysisId: response.analysis_id,
+          storageWarning: response.storage_warning,
+        });
+        setStage("result");
+      } catch (err) {
+        setActiveStep(-1);
+        setDoneSteps(VALIDATE_STEP_INDEX);
+        setError(err instanceof Error ? err.message : "Analysis failed. Please try again.");
+        setStage("preview");
+      }
     };
-    img.onerror = () => setStage("preview");
+
+    img.onerror = () => {
+      setError("This image could not be loaded. Try a different file.");
+      setStage("preview");
+    };
     img.src = imageSrc;
   };
 
@@ -311,15 +418,15 @@ export default function AnalyzerClient() {
     <div className="rounded-3xl border border-line-strong bg-surface p-5 sm:p-8">
       <div className="max-w-xl">
         <span className="inline-flex items-center gap-2 font-mono text-xs font-medium uppercase tracking-wider text-sprout-text">
-          <span className="h-1.5 w-1.5 rounded-full bg-sprout" /> Live in your browser
+          <span className="h-1.5 w-1.5 rounded-full bg-sprout" /> Live analysis
         </span>
         <h3 className="mt-3 font-serif text-2xl font-semibold text-ink">Run the analysis</h3>
         <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
           Upload a soil photo — or use the project&rsquo;s own sample image —
-          and this panel checks whether the photo is a reasonable soil
-          close-up, then runs the real K-Means extraction, classification,
-          nutrient prediction, and crop-matching logic. Same core math as
-          the FastAPI backend, no server required.
+          and this panel first checks, in your browser, whether the photo is a
+          reasonable soil close-up. If it passes, the image is sent to SAWA&rsquo;s
+          API, which runs the real K-Means extraction, classification, nutrient
+          prediction, and crop-matching logic and stores the result.
         </p>
       </div>
 
@@ -419,7 +526,7 @@ export default function AnalyzerClient() {
               <div className="flex items-center gap-2 text-sm text-ink-faint">
                 <span>No image handy?</span>
                 <button
-                  onClick={() => loadImage(SAMPLE_SOIL_DATA_URI, true)}
+                  onClick={() => loadImage(SAMPLE_SOIL_DATA_URI, true, null)}
                   className="font-mono text-sm font-medium text-forest-deep underline-offset-2 hover:underline"
                 >
                   Use the project&rsquo;s sample &rarr;
@@ -428,8 +535,9 @@ export default function AnalyzerClient() {
               <p className="mt-2 text-xs leading-relaxed text-ink-faint">
                 The bundled sample is a flat test-fixture image from the
                 repo, so we add simulated variance to it for a
-                representative result. A photo you upload is analyzed
-                exactly as captured — including by the validation step below.
+                representative result, and that varied version is what gets
+                analyzed. A photo you upload is sent and analyzed exactly as
+                captured — including by the validation step below.
               </p>
             </div>
           )}
@@ -457,7 +565,22 @@ export default function AnalyzerClient() {
 
         {/* ============ results column ============ */}
         <div className="min-h-[300px]">
-          {!outcome && (
+          {error && (
+            <div
+              role="alert"
+              className="mb-4 flex items-start gap-3 rounded-2xl border border-rust/25 bg-rust/[0.04] p-4"
+            >
+              <span className="mt-0.5 flex-none text-rust">
+                <XCircle size={17} />
+              </span>
+              <div>
+                <p className="font-mono text-xs uppercase tracking-wider text-rust">Analysis failed</p>
+                <p className="mt-1 text-sm leading-relaxed text-ink-soft">{error}</p>
+              </div>
+            </div>
+          )}
+
+          {!outcome && !error && (
             <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 rounded-2xl border border-line bg-bg-alt p-8 text-center">
               <ImageIcon size={30} className="text-ink-faint" />
               <p className="max-w-xs text-sm text-ink-faint">
@@ -482,6 +605,18 @@ export default function AnalyzerClient() {
                   band={analyzed.report.band}
                   labels={{ high: "High reading confidence", medium: "Medium reading confidence", low: "Low reading confidence" }}
                 />
+                {analyzed.analysisId && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-line-strong bg-bg-alt px-3 py-1 font-mono text-[11px] text-ink-faint">
+                    <CheckCircle2 size={12} className="text-sprout-text" />
+                    Saved &middot; {analyzed.analysisId.slice(-8)}
+                  </span>
+                )}
+                {analyzed.storageWarning && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-soil/30 bg-soil/10 px-3 py-1 font-mono text-[11px] text-soil-text">
+                    <AlertTriangle size={12} />
+                    Not saved to database
+                  </span>
+                )}
               </div>
               <details className="-mt-2 rounded-xl border border-line bg-bg-alt p-4">
                 <summary className="cursor-pointer select-none font-mono text-xs uppercase tracking-wide text-ink-faint transition-colors hover:text-ink-soft">
@@ -629,15 +764,15 @@ export default function AnalyzerClient() {
               <p className="border-t border-dashed border-line pt-4 text-xs leading-relaxed text-ink-faint">
                 This runs the exact classification, prediction, and
                 crop-matching logic from <b className="text-ink-soft">backend/server.py</b>,
-                ported to TypeScript and executing entirely in this tab —
-                nothing is uploaded anywhere. The image-quality and
-                confidence checks above run first and are a client-side
-                addition on top of that ported algorithm, not part of the
-                original <b className="text-ink-soft">backend/server.py</b> —
-                see <b className="text-ink-soft">VALIDATION_SYSTEM_PROMPT.md</b> for
-                the full spec. The deployed app additionally saves each
-                result to MongoDB for its history panel, which this static
-                preview doesn&rsquo;t include.
+                ported to TypeScript and executed by SAWA&rsquo;s own API —
+                your image is uploaded to that endpoint, analyzed, and the
+                result is saved to MongoDB. The image itself is not stored.
+                The image-quality and confidence checks above run first, in
+                your browser, and are an addition on top of that ported
+                algorithm, not part of the original{" "}
+                <b className="text-ink-soft">backend/server.py</b> — see{" "}
+                <b className="text-ink-soft">VALIDATION_SYSTEM_PROMPT.md</b> for
+                the full spec.
               </p>
             </div>
           )}

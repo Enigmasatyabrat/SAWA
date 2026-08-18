@@ -123,6 +123,28 @@ message if the connection or auth fails.
 
 ---
 
+## Frontend usage
+
+The analyzer does **not** call `fetch` directly. All frontend→backend traffic goes
+through [`src/lib/api-client.ts`](src/lib/api-client.ts):
+
+```ts
+import { analyzeSoilWithBackend } from "@/lib/api-client";
+const result = await analyzeSoilWithBackend(file); // throws Error with the server's message
+```
+
+Order of operations in [`AnalyzerClient.tsx`](src/components/AnalyzerClient.tsx):
+
+1. The **validation gate** runs client-side (it needs the decoded `<img>`, and is a
+   presentation concern). If the verdict is `rejected` or `uncertain`, **the API is never
+   called** — no point uploading an image already known to be unusable.
+2. Only on `ok` is the image POSTed to `/api/analyze-soil`.
+3. The snake_case response is mapped onto the engine's `AnalysisResult` shape for rendering.
+
+The bundled sample fixture is flat by design, so `simulateSampleVariance()` is applied and
+the varied 150×150 grid is re-encoded as a PNG `File` before upload — the backend therefore
+analyzes exactly the pixels the validator inspected.
+
 ## Environment
 
 Required in `.env.local` (never committed):

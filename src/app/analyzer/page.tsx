@@ -36,7 +36,7 @@ export default function AnalyzerPage() {
             </h1>
             <p className="mt-5 text-lg leading-relaxed text-ink-soft">
               A real, working port of SAWA&rsquo;s pipeline — upload a photo
-              below and get an actual analysis back, computed in this tab.
+              below and get an actual analysis back from the live API.
             </p>
           </div>
         </Reveal>

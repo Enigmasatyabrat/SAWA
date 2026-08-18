@@ -200,8 +200,8 @@ export default function HomePage() {
         <Reveal scale>
           <CTABanner
             eyebrow="Try it now"
-            title="Upload a soil photo. Watch the pipeline run in your browser."
-            lead="The live analyzer runs the same K-Means, classification, and recommendation logic as the FastAPI backend — client-side, on your device."
+            title="Upload a soil photo. Watch the pipeline run."
+            lead="The live analyzer validates your photo in the browser, then runs the same K-Means, classification, and recommendation logic as the FastAPI backend — now served by SAWA's own API."
             primary={{ href: "/analyzer", label: "Open the analyzer" }}
             secondary={{ href: "/contact", label: "Get in touch" }}
           />
