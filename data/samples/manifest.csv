@@ -1,0 +1,3 @@
+image_path,lab_ph,lab_nitrogen,lab_phosphorus,lab_potassium,soil_type,location,date,notes
+# Example row — delete this comment line and add real rows below as samples are collected:
+# samples/soil_001.jpg,6.5,75,45,80,Loamy Soil,Gorakhpur UP,2026-08-19,collected from garden

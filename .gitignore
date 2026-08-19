@@ -39,3 +39,28 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# data & models
+# Sample photos are large; manifest.csv is the tracked source of truth and
+# references them by path. Keep the images backed up outside the repo.
+data/samples/*.jpg
+data/samples/*.jpeg
+data/samples/*.png
+src/lib/ml/*.pkl
+src/lib/ml/*.joblib
+src/lib/ml/*.onnx
+
+# build artifacts
+/dist
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+
+# backups
+backup-*

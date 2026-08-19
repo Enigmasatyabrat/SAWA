@@ -1,20 +1,49 @@
 # SAWA — Soil Analysis Web App
 
-A showcase site for SAWA, a computer-vision soil analysis pipeline built by
-Satyabrat Mishra (B.Tech CSE, AI & ML, ITM GIDA, Gorakhpur). This site is the
-**portfolio/marketing front-end for the project** — the Analyzer page runs a
-faithful TypeScript port of the actual `backend/server.py` algorithm
-(K-Means colour clustering, soil classification, N-P-K/pH prediction, and
-crop matching) entirely client-side, so it works without the original
-FastAPI + MongoDB backend running anywhere.
+SAWA is a computer-vision soil analysis pipeline built by Satyabrat Mishra
+(B.Tech CSE, AI & ML, ITM GIDA, Gorakhpur). The Analyzer page runs a faithful
+TypeScript port of the original `backend/server.py` algorithm — K-Means colour
+clustering, soil classification, N-P-K/pH prediction, and crop matching — served
+by this app's own API and persisted to MongoDB.
 
 The Analyzer also runs a **validation gate** in front of that ported
 algorithm: before scoring anything, it checks whether the uploaded photo is
 a plausible soil close-up (colour, exposure, resolution, local texture),
 rejects images that clearly aren't soil, flags low-evidence images as
 Uncertain instead of guessing, and attaches a confidence score plus its
-evidence to every result. This is a client-side addition, not part of the
-original backend — see `VALIDATION_SYSTEM_PROMPT.md` and `IMPROVEMENTS.md`.
+evidence to every result. The gate runs in the browser and decides whether the
+image is uploaded at all — a rejected photo never leaves the device. It is an
+addition, not part of the original backend — see `VALIDATION_SYSTEM_PROMPT.md`
+and `IMPROVEMENTS.md`.
+
+## Architecture
+
+**Current version: v2.0.0 (Next.js)** — see [RELEASES.md](RELEASES.md).
+
+This is SAWA v2, a unified Next.js full-stack application.
+
+### Previous version
+
+SAWA v1 (Plan A): React frontend + a separate FastAPI backend.
+
+- Repository: [Enigmasatyabrat/soil-analysis-app](https://github.com/Enigmasatyabrat/soil-analysis-app)
+- Status: archived for reference; no longer under active development
+- Why we migrated: a single codebase is simpler for a solo developer — one
+  deployment, no CORS or two-server orchestration
+
+### How it works
+
+1. **Upload a soil photo** at `/analyzer`
+2. **Validation gate** checks image quality client-side; if it rejects the photo,
+   nothing is uploaded
+3. **Backend processes** the image: K-Means clustering, soil classification,
+   nutrient prediction, crop matching
+4. **Results returned**: soil type, pH, N-P-K, recommended crops, confidence metrics
+5. **Data persisted**: each analysis is saved to MongoDB (the image itself is not)
+6. **Evidence shown**: classification reasoning and validation metrics are displayed
+
+See [docs/LEARNING-GUIDE-NEXTJS.md](docs/LEARNING-GUIDE-NEXTJS.md) for full
+architecture details and [API.md](API.md) for the endpoint reference.
 
 ## Stack
 
