@@ -1,0 +1,7 @@
+sample_id,date_collected,time_collected,location,district,gps_lat,gps_lon,depth_cm,weather,moisture_visual,phone_model,capture_distance_cm,image_filename,image_hash_sha256,quality_score,notes,lab_id_later,nutrient_n_ppm_later,nutrient_p_ppm_later,nutrient_k_ppm_later,ph_later,ec_later,oc_percent_later
+# Lines starting with '#' are comments and are stripped before parsing.
+# Rows are written by scripts/populate-manifest-csv.py — do not hand-edit the
+# generated rows; edit checklist-responses.csv and re-run the script instead.
+# Columns ending in '_later' stay empty until Phase 1B lab results arrive.
+# Example of a fully populated collection row (lab columns still empty):
+# SAWA-001,2026-09-15,14:32:00,Teliyarganj,Prayagraj,25.4358,81.8463,15,Sunny,Moist,iPhone 14,15,SAWA-001.jpg,abc123def456...,9.5,"Fresh loam, dense organic matter",,,,,,,

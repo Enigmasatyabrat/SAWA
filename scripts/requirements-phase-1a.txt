@@ -1,0 +1,15 @@
+# Phase 1A photo collection toolkit.
+# Install with:  pip install -r scripts/requirements-phase-1a.txt
+
+# extract-iphone-metadata.py — image opening and EXIF
+Pillow>=10.0
+
+# extract-iphone-metadata.py — HEIC support (iPhone's default format).
+# Drop this line only if you set Settings > Camera > Formats > Most Compatible.
+pillow-heif>=0.15
+
+# generate-checklist-pdf.py — PDF layout and the QR code
+reportlab>=4.0
+qrcode>=7.4
+
+# populate-manifest-csv.py needs nothing beyond the standard library.
