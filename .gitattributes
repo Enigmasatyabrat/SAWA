@@ -1,0 +1,12 @@
+# Without this, core.autocrlf=true rewrites LF to CRLF inside binary files and
+# corrupts them on checkout. Git's heuristics miss the generated checklist PDF.
+*.pdf binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.heic binary
+
+# Keep data files LF in the repository regardless of the checkout platform, so
+# the manifest doesn't churn between Windows and Linux contributors.
+*.csv text eol=lf
+*.py text eol=lf

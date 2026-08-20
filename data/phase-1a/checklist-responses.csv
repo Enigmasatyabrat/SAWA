@@ -1,0 +1,14 @@
+sample_id,location,district,depth_cm,weather,moisture_visual,capture_distance_cm,quality_score,gps_lat,gps_lon,notes
+# Type your printed checklist pages into this file, one row per sample.
+# Required columns: sample_id, location, district, depth_cm, weather, moisture_visual
+# Optional columns:
+#   capture_distance_cm - defaults to 15 if blank
+#   quality_score       - your 0-10 judgement from the quality checklist
+#   gps_lat / gps_lon   - ONLY needed when the photo has no EXIF GPS; these
+#                         override EXIF when present
+#   notes               - free text; quote the field if it contains a comma
+# Weather:  Sunny | Cloudy | Overcast | Drizzle
+# Moisture: Dry | Moist | Wet
+# Example rows — add your real rows below, uncommented:
+# SAWA-001,Teliyarganj,Prayagraj,15,Sunny,Moist,15,9.5,,,"Fresh loam, dense organic matter"
+# SAWA-002,Chaka,Prayagraj,20,Cloudy,Dry,15,8,,,"Rocky soil, sparse vegetation"

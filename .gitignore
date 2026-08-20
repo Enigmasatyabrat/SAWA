@@ -46,12 +46,22 @@ next-env.d.ts
 data/samples/*.jpg
 data/samples/*.jpeg
 data/samples/*.png
+# Phase 1A raw captures: photos are large and the .json sidecars are
+# regenerable from them via scripts/extract-iphone-metadata.py. manifest.csv
+# stays tracked and references each image by filename + SHA-256 hash.
+# Back the photos up outside this repo — they cannot be regenerated.
+data/phase-1a/raw/*
+!data/phase-1a/raw/.gitkeep
 src/lib/ml/*.pkl
 src/lib/ml/*.joblib
 src/lib/ml/*.onnx
 
 # build artifacts
 /dist
+
+# python (scripts/)
+__pycache__/
+*.pyc
 
 # IDE
 .vscode
