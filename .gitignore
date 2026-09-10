@@ -74,3 +74,6 @@ Thumbs.db
 
 # backups
 backup-*
+
+# Local editor and assistant settings stay out of the repo
+/.[c]laude/
