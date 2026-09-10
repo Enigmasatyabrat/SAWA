@@ -49,4 +49,11 @@ See [README.md](README.md) § Architecture for the explanation and links to Plan
 ### Next: Phase 1
 
 Data collection from real soils with lab-verified results.
-See `data/samples/manifest.csv` for the collection schema.
+
+- **Phase 1A (tooling complete, collection not started):** a structured 20-sample pilot —
+  capture protocol, printable checklist, and scripts to extract photo metadata and
+  populate the manifest. See [`data/phase-1a/README.md`](data/phase-1a/README.md) and
+  [`docs/PHASE-1A-CAPTURE-PROTOCOL.md`](docs/PHASE-1A-CAPTURE-PROTOCOL.md).
+- **Phase 1B:** lab results fill the `*_later` columns in `data/phase-1a/manifest.csv`.
+- `data/samples/manifest.csv` remains the separate, simpler 50–100 sample training
+  manifest that Phase 1A feeds. The two schemas are deliberately kept apart.

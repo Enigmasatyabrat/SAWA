@@ -145,6 +145,47 @@ The bundled sample fixture is flat by design, so `simulateSampleVariance()` is a
 the varied 150×150 grid is re-encoded as a PNG `File` before upload — the backend therefore
 analyzes exactly the pixels the validator inspected.
 
+## Troubleshooting
+
+### `/api/test-db` returns 500 with `tlsv1 alert internal error ... SSL alert number 80`
+
+This is **almost always an Atlas Network Access (IP allowlist) problem**, not a code or
+credentials problem. It has occurred twice on this project, both times after an idle gap.
+
+Diagnose it before changing anything:
+
+```bash
+# 1. Does the cluster still exist? (use a public resolver; some ISP resolvers fail on SRV)
+nslookup -type=SRV _mongodb._tcp.<cluster>.mongodb.net 8.8.8.8
+```
+
+```bash
+# 2. Where does the connection actually fail — network, or Atlas rejecting you?
+node -e "const tls=require('tls');const h='<shard-host>';const t=tls.connect({host:h,port:27017,servername:h},()=>{console.log('TLS OK');t.destroy()});t.on('error',e=>console.log('TLS FAILED ->',e.code))"
+```
+
+Interpretation:
+
+| Symptom | Meaning |
+| --- | --- |
+| SRV does not resolve on a public resolver | Cluster deleted or renamed |
+| TCP connect fails / times out | Network, firewall, or port 27017 blocked |
+| **TCP connects but TLS is rejected with alert 80** | **Cluster is up and reachable — your IP is not allowlisted** |
+| Connects but `bad auth` | Wrong password in `.env.local` |
+
+**Fix:** MongoDB Atlas → your project → **Network Access** → add your current IP.
+Dynamic home IPs change, and Atlas's temporary "allow access from anywhere" entries
+expire after a set window, so this recurs after idle periods.
+
+Note this is *not* a paused cluster: a paused Atlas cluster refuses the TCP connection
+outright, so reaching the TLS stage means the cluster is running.
+
+### The app's behaviour during an outage
+
+Failure is handled, not fatal: `/api/test-db` returns a clean 500 with the real driver
+message, and `/api/analyze-soil` still returns the completed analysis with a
+`storage_warning` and `analysis_id: null` rather than losing the user's result.
+
 ## Environment
 
 Required in `.env.local` (never committed):
