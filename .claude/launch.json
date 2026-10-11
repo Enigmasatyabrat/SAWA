@@ -9,6 +9,12 @@
         "dev"
       ],
       "port": 3000
+    },
+    {
+      "name": "design-prototype",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5178", "--directory", "design"],
+      "port": 5178
     }
   ]
 }
