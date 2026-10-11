@@ -20,7 +20,7 @@ import {
   type AnalysisResult,
   type RGB,
 } from "@/lib/soil-engine";
-import { analyzeSoilWithBackend } from "@/lib/api-client";
+import { analyzeSoilWithBackend, type MunsellWire } from "@/lib/api-client";
 import {
   metricsFromImage,
   evaluateValidation,
@@ -54,6 +54,8 @@ type Outcome =
       /** MongoDB `_id` of the stored analysis, or null if the write failed. */
       analysisId: string | null;
       storageWarning?: string;
+      /** Computed server-side; absent if the conversion failed. */
+      munsell?: MunsellWire;
     };
 
 // "Validate" is new — see VALIDATION_SYSTEM_PROMPT.md and BUILD_LOG.md for
@@ -384,6 +386,7 @@ export default function AnalyzerClient() {
           soilEvidence,
           analysisId: response.analysis_id,
           storageWarning: response.storage_warning,
+          munsell: response.munsell,
         });
         setStage("result");
       } catch (err) {
@@ -632,6 +635,17 @@ export default function AnalyzerClient() {
                   <p className="font-mono text-xs uppercase tracking-wider text-ink-faint">Classified as</p>
                   <p className="font-serif text-xl font-semibold text-ink">{analyzed.result.soilType}</p>
                 </div>
+                {analyzed.munsell && (
+                  <div>
+                    <p className="font-mono text-xs uppercase tracking-wider text-ink-faint">Munsell (photo)</p>
+                    <p
+                      className="font-serif text-xl font-semibold text-ink"
+                      title={`Unrounded: ${analyzed.munsell.precise}`}
+                    >
+                      {analyzed.munsell.notation}
+                    </p>
+                  </div>
+                )}
                 <div>
                   <p className="font-mono text-xs uppercase tracking-wider text-ink-faint">pH</p>
                   <p className="font-serif text-xl font-semibold text-ink">
@@ -686,12 +700,27 @@ export default function AnalyzerClient() {
                         className="h-11 w-11 rounded-xl border border-black/10"
                         style={{ background: `rgb(${c[0]},${c[1]},${c[2]})` }}
                       />
+                      {analyzed.munsell?.dominant[i] && (
+                        <span className="mt-1 block font-mono text-[11px] text-ink-soft">
+                          {analyzed.munsell.dominant[i]}
+                        </span>
+                      )}
                       <span className="mt-1 block font-mono text-[11px] text-ink-faint">
                         {analyzed.result.percentages[i].toFixed(1)}%
                       </span>
                     </div>
                   ))}
                 </div>
+                {analyzed.munsell && (
+                  <p className="mt-2 text-xs leading-relaxed text-ink-faint">
+                    Munsell notation is how soil scientists record colour. These
+                    are the nearest soil-chart chips to the photo&rsquo;s colour,
+                    {analyzed.munsell.calibrated
+                      ? " corrected against the reference card in frame."
+                      : " not a calibrated chart reading — phone cameras and lighting shift colour."}
+                    {!analyzed.munsell.on_soil_chart && " This hue is off the standard soil-chart pages."}
+                  </p>
+                )}
               </div>
 
               {/* NPK chart */}
