@@ -15,6 +15,8 @@
  */
 
 import { getDatabase } from '@/lib/mongodb';
+import type { MunsellWire } from '@/lib/api-client';
+import { soilMunsell, weightedColor } from '@/lib/munsell';
 import {
   kmeans,
   classifySoilType,
@@ -111,6 +113,25 @@ export async function POST(request: NextRequest) {
     const nutrients = predictNutrients(dominantColors, soilType);
     const crops = recommendCrops(nutrients);
 
+    // Munsell notation of the photographed colour (see src/lib/munsell.ts).
+    // Computed here rather than in the browser so the converter's renotation
+    // data never ships to the client. Like storage, a failure here must not
+    // cost the user their analysis — the field is simply omitted.
+    let munsell: MunsellWire | null = null;
+    try {
+      const soil = soilMunsell(weightedColor(dominantColors, percentages));
+      munsell = {
+        notation: soil.notation,
+        precise: soil.precise,
+        on_soil_chart: soil.onSoilChart,
+        dominant: dominantColors.map((c) => soilMunsell(c).notation),
+        // Phone colour without a reference card in frame (LIT-SAWA-001 L-05).
+        calibrated: false,
+      };
+    } catch (munsellError) {
+      console.error('⚠️  Munsell conversion failed:', munsellError);
+    }
+
     console.log(`✅ Analysis complete: ${soilType}`);
 
     // Persist the analysis. A storage failure must not lose the user's result,
@@ -143,6 +164,7 @@ export async function POST(request: NextRequest) {
       color_percentages: percentages,
       nutrients,
       recommended_crops: crops,
+      ...(munsell ? { munsell } : {}),
       analysis_id: persisted,
       ...(storageError ? { storage_warning: storageError } : {}),
     });

@@ -59,6 +59,34 @@ the same module the client analyzer uses, so the API and UI cannot drift.
 `dominant_colors` and `color_percentages` are index-aligned and sorted by
 descending share; percentages sum to ~100.
 
+The response also carries a `munsell` object — the photo's colour in Munsell
+notation, the system soil scientists use, snapped to the nearest chip on a
+Munsell Soil Color Book page:
+
+```json
+"munsell": {
+  "notation": "7.5YR 3/2",
+  "precise": "8YR 3.1/2.4",
+  "on_soil_chart": true,
+  "dominant": ["7.5YR 3/2", "7.5YR 4/3", "7.5YR 3/2", "7.5YR 2.5/2", "7.5YR 2/2"],
+  "calibrated": false
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `notation` | Nearest soil-chart chip for the share-weighted image colour (hue pages 10R–5Y; values 2–8; chromas 1, 2, 3, 4, 6, 8; `N v/` below chroma 0.5) |
+| `precise` | Unrounded converter output |
+| `on_soil_chart` | `false` when the hue is off the standard soil pages (e.g. greenish) |
+| `dominant` | Nearest chip per dominant colour, index-aligned with `dominant_colors` |
+| `calibrated` | Always `false` today: no reference card is detected, so this describes the **photo**, not a chart reading of the soil |
+
+Computed server-side with the [`munsell`](https://github.com/privet-kitty/munsell.js)
+package (MPL-2.0, unmodified dependency) so its renotation data never reaches
+the browser bundle. Omitted, without failing the request, if conversion errors.
+At chroma ≈ 1 the hue is sensitive to 8-bit colour rounding and may land one
+2.5-step hue page away (2 of 307 in-gamut chart chips in testing).
+
 If the analysis succeeded but the database write failed, the response is still
 `200` and additionally carries `storage_warning`, with `analysis_id: null` —
 a storage outage never costs the user their result.
