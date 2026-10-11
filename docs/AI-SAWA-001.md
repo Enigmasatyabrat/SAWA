@@ -125,7 +125,11 @@ ml/                              (new Python workspace — separate from the Nex
 
 ---
 
-## 6. Language models (if used at all)
+## 6. Language and vision-language models (if used at all)
+
+ADR-021 sets the boundary for vision-language models such as Gemini: they may
+*observe* (structured, qualitative facts about the image), *triage* (what
+evidence to add) and *phrase* — never measure. The rules below cover phrasing.
 
 An LLM may **phrase** results in Hindi or English. It may not produce a number,
 a dose, a rating, or a recommendation. Advice text is generated from templates
