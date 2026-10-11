@@ -21,10 +21,15 @@ Read this once end-to-end before your first collection day. Print
 | Trowel or khurpi | For digging to depth | owned |
 | Zip bags or containers | 1 per sample, labelled SAWA-001 … SAWA-020 | ~₹0 |
 | Printed checklist | 20 pages, from `generate-checklist-pdf.py` | print cost |
+| **18 % neutral grey card** | Small (≥ 5 × 5 cm), matte; photography shops or online | ₹20–50 |
 
-**Do not** buy a colour card, light tent, or macro lens for Phase 1A. Those are
-Phase 1B/hardware-roadmap items. The point of this phase is to find out how far
-uncalibrated phone photos get us.
+**Amended 11 Oct 2026 (DATA-SAWA-001 §2.2).** This protocol originally said not
+to use a colour card, so the pilot would show how far *uncalibrated* photos get.
+Published smartphone soil studies since showed that a reference in frame is
+what makes phone colour comparable across devices (LIT-SAWA-001 L-05, L-07) —
+without one, these 20 photos could never be colour-corrected later. A grey card
+costs ₹20–50 and changes nothing else below. Still **do not** buy a light tent
+or macro lens.
 
 ---
 
@@ -142,7 +147,9 @@ when they are merged.
 
 **Steps per shot:**
 1. Frame so the dish rim sits just inside the frame edges — soil filling the
-   frame, minimal background.
+   frame, minimal background. Lay the **grey card flat at one edge of the
+   dish**, at the same height as the soil and in the same light, occupying
+   no more than ~10 % of the frame. Same edge, every sample.
 2. **Tap the centre of the soil** to set focus and exposure there.
 3. **Check the exposure slider** (the small sun beside the focus box) sits at 0.
    Drag it back to centre if a previous shot left it offset.
@@ -209,7 +216,8 @@ Zoom into the photo on the phone (pinch to ~100%) and confirm all six. It costs
 - [ ] **Evenly lit.** No hard shadow crossing the dish, no blown-white patch,
       no dark corner.
 - [ ] **Fill-frame soil.** Soil dominates. No sky, no horizon, no shoes, no
-      hands, minimal dish rim, no background scenery.
+      hands, minimal dish rim, no background scenery. The grey card is
+      visible at its usual edge, evenly lit, not shadowed.
 - [ ] **No glare.** No white specular hotspot from sun or a reflective surface.
 - [ ] **Colour looks true.** Compare the screen to the actual soil in front of
       you. If the photo looks noticeably more orange, blue, or washed out than
@@ -297,6 +305,7 @@ FLASH      OFF — always
 LIGHT      Open shade or light overcast, 10:00–15:00
            No direct sun, no golden hour, no own shadow
 DISH       Same white dish every time, soil leveled, no dish showing
+CARD       18% grey card at the same edge of the frame, every shot
 SAMPLE     ~500 g, from side wall at depth, debris removed, not dried
 SHOTS      3 per sample, tap centre to focus, exposure slider at 0
 CHECK      Sharp / even light / fills frame / no glare / true colour / not dark

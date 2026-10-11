@@ -1,7 +1,8 @@
 # Phase 1A — Photo Collection
 
 **Target:** 20 soil photographs with field metadata, this month, at ₹0 cost.
-**Equipment:** an iPhone 14, a white dish, a ruler, and a printed checklist.
+**Equipment:** an iPhone 14, a white dish, a ruler, an 18 % grey card (₹20–50),
+and a printed checklist.
 
 Phase 1A collects **images + field observations only**. Lab values (N, P, K, pH,
 EC, organic carbon) arrive in **Phase 1B**, when the bagged samples go to a soil
@@ -76,7 +77,8 @@ short version:
    While Using the App`, with **Precise Location** on. Without this there is no
    GPS in the photos and you will be typing coordinates by hand.
 2. Dig to depth, bag ~500 g, label it `SAWA-0NN` in pen.
-3. Level the soil in the **same white dish** every time.
+3. Level the soil in the **same white dish** every time, with the **grey card**
+   at the same edge of the frame in every shot (see the protocol's amendment note).
 4. Shoot straight down from **15 cm**, at **1× zoom**, **no flash**, in open
    shade. Three shots per sample.
 5. Fill in the checklist page for that sample before moving on.

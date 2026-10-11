@@ -52,6 +52,7 @@ FIELD_SUMMARY = [
     ("LIGHT", "Open shade or light overcast, 10:00-15:00"),
     ("", "No direct sun, no golden hour, no shadow of your own on the dish"),
     ("DISH", "Same white dish every sample, soil leveled, no dish showing"),
+    ("CARD", "18% grey card at the same edge of the frame, every shot"),
     ("SAMPLE", "~500 g from the side wall at depth, debris out, do not dry it"),
     ("SHOTS", "3 per sample; tap centre to focus; exposure slider at 0"),
     ("CHECK", "Sharp / even light / fills frame / no glare / true colour / not dark"),
