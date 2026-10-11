@@ -1,0 +1,1259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SAWA prototype · Soil Analysis Web App</title>
+<style>
+/* ============================================================
+   Prototype chrome (not part of the app design)
+   ============================================================ */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",Ubuntu,sans-serif;background:#2a2622;color:#eee}
+.proto{position:sticky;top:0;z-index:100;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;padding:8px 14px;background:#191714;border-bottom:1px solid #3a342d;font-size:13px}
+.proto b{color:#fff;letter-spacing:.04em}
+.proto label{display:flex;gap:6px;align-items:center;color:#cfc6b8}
+.proto select{background:#2b2724;color:#fff;border:1px solid #5a5044;border-radius:6px;padding:5px 6px;font:inherit;max-width:260px}
+.proto .note{color:#a89d8e;flex-basis:100%;font-size:12px}
+.stage{display:flex;justify-content:center;padding:22px 12px 48px}
+.frame{width:var(--fw,390px);height:min(800px,calc(100vh - 120px));min-height:560px;overflow:auto;border-radius:30px;box-shadow:0 0 0 10px #0f0e0c,0 24px 60px rgba(0,0,0,.55);background:#000;scroll-behavior:smooth}
+.frame.desk{--fw:min(1280px,100%);height:calc(100vh - 120px);border-radius:12px;box-shadow:0 0 0 1px #0f0e0c,0 24px 60px rgba(0,0,0,.55)}
+
+/* ============================================================
+   Design tokens  (light / dark / sunlight high-contrast)
+   ============================================================ */
+.app{
+  --bg:#F6F1E7;--surface:#FFFFFF;--surface-2:#EDE5D6;--surface-3:#E0D4BF;
+  --ink:#1E1912;--ink-2:#463C31;--ink-3:#62574A;
+  --line:#D6CAB5;--line-strong:#8F806A;
+  --primary:#2E5A36;--primary-hover:#234628;--on-primary:#FFFFFF;--primary-soft:#E0EAD9;
+  --soil:#6E4325;
+  --ok:#2A6533;--ok-bg:#E2EFDF;--warn:#7A4E00;--warn-bg:#FBEFD2;--bad:#9B2A1C;--bad-bg:#F8E3DE;--info:#1F4A72;--info-bg:#E4EDF6;
+  --lvl-low:#8F3F17;--lvl-med:#6B5A0E;--lvl-high:#2E5A36;--on-lvl:#FFFFFF;
+  --focus:#0B57D0;
+  --shadow:0 1px 2px rgba(40,30,20,.08),0 4px 16px rgba(40,30,20,.06);
+  --bw:1px;--fs-base:17px;
+}
+.app[data-theme=dark]{
+  --bg:#14110D;--surface:#1E1A15;--surface-2:#29231C;--surface-3:#3A3127;
+  --ink:#F4EEE4;--ink-2:#D6CBB9;--ink-3:#B3A693;
+  --line:#3B3229;--line-strong:#7A6B59;
+  --primary:#9BD3A5;--primary-hover:#B6E2BE;--on-primary:#0E1A10;--primary-soft:#22311F;
+  --soil:#B9825A;
+  --ok:#9BD3A5;--ok-bg:#1C2B1D;--warn:#F2C46B;--warn-bg:#30240E;--bad:#F4A493;--bad-bg:#371A15;--info:#9CC3EC;--info-bg:#152433;
+  --lvl-low:#F0A27A;--lvl-med:#E2CF6E;--lvl-high:#9BD3A5;--on-lvl:#14110D;
+  --focus:#8AB4F8;--shadow:none;
+}
+.app[data-theme=sun]{
+  --bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F0F0F0;--surface-3:#DADADA;
+  --ink:#000000;--ink-2:#111111;--ink-3:#262626;
+  --line:#000000;--line-strong:#000000;
+  --primary:#0F3D19;--primary-hover:#082A10;--on-primary:#FFFFFF;--primary-soft:#E3EFE3;
+  --soil:#4A2A12;
+  --ok:#0B4515;--ok-bg:#FFFFFF;--warn:#4F3200;--warn-bg:#FFFFFF;--bad:#700F05;--bad-bg:#FFFFFF;--info:#082E50;--info-bg:#FFFFFF;
+  --lvl-low:#6E2A08;--lvl-med:#4A3D00;--lvl-high:#0F3D19;--on-lvl:#FFFFFF;
+  --focus:#0033CC;--shadow:none;--bw:2px;--fs-base:18px;
+}
+.app{
+  --t-xs:calc(var(--fs-base)*.765);--t-sm:calc(var(--fs-base)*.882);--t-md:var(--fs-base);
+  --t-lg:calc(var(--fs-base)*1.176);--t-xl:calc(var(--fs-base)*1.412);--t-2xl:calc(var(--fs-base)*1.765);--t-3xl:calc(var(--fs-base)*2.118);
+  --r-sm:6px;--r-md:10px;--r-lg:16px;--r-pill:999px;
+  container:app/inline-size;min-height:100%;display:flex;flex-direction:column;
+  background:var(--bg);color:var(--ink);font-size:var(--t-md);line-height:1.5;
+}
+.app :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.app a{color:var(--primary);text-underline-offset:3px}
+.app[data-theme=sun] a{text-decoration-thickness:2px}
+.ic{width:1.25em;height:1.25em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.app[data-theme=sun] .ic{stroke-width:2.5}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- Header / nav ---------- */
+.hdr{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:8px 12px 8px 16px;background:var(--surface);border-bottom:var(--bw) solid var(--line);min-height:62px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink)!important;text-decoration:none;font-weight:800;letter-spacing:.03em;min-height:44px}
+.brand .mark{width:34px;height:34px;border-radius:9px;background:var(--soil);display:grid;place-items:center;color:#fff}
+.brand small{display:block;font-weight:500;font-size:var(--t-xs);color:var(--ink-3);letter-spacing:0;line-height:1.2}
+.topnav{display:none;gap:2px;margin-left:20px}
+.topnav a{min-height:44px;padding:0 14px;border-radius:var(--r-md);color:var(--ink-2);text-decoration:none;font-weight:650;display:flex;align-items:center}
+.topnav a:hover{background:var(--surface-2)}
+.topnav a[aria-current=page]{background:var(--primary-soft);color:var(--ink)}
+.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.iconbtn{width:44px;height:44px;border-radius:var(--r-md);border:var(--bw) solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer;font:inherit}
+.iconbtn:hover{background:var(--surface-2)}
+.net{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:4px 10px;border-radius:var(--r-pill);font-size:var(--t-xs);font-weight:700;border:var(--bw) solid currentColor;white-space:nowrap}
+.net.on{color:var(--ok);background:var(--ok-bg)}
+.net.off{color:var(--warn);background:var(--warn-bg)}
+.bnav{position:sticky;bottom:0;z-index:10;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:var(--bw) solid var(--line)}
+.bnav a{position:relative;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:var(--t-xs);font-weight:700;color:var(--ink-3);text-decoration:none}
+.bnav a .ic{width:24px;height:24px}
+.bnav a[aria-current=page]{color:var(--primary)}
+.bnav a[aria-current=page]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--primary)}
+@container app (min-width:900px){.topnav{display:flex}.bnav{display:none}}
+@container app (max-width:400px){.brand small{display:none}}
+main{flex:1;width:100%;max-width:1160px;margin:0 auto;padding:20px 16px 32px}
+@container app (min-width:900px){main{padding:32px 32px 56px}}
+.foot{padding:20px 16px 28px;border-top:var(--bw) solid var(--line);color:var(--ink-2);font-size:var(--t-sm);text-align:center}
+.foot nav{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;margin-top:6px}
+.foot a{display:inline-flex;align-items:center;min-height:44px}
+
+/* ---------- Type ---------- */
+h1,h2,h3{margin:0;line-height:1.2;color:var(--ink)}
+h1{font-size:var(--t-2xl);letter-spacing:-.01em;margin-bottom:8px}
+@container app (min-width:900px){h1{font-size:var(--t-3xl)}}
+h2{font-size:var(--t-lg);margin-bottom:12px}
+h3{font-size:var(--t-md)}
+p{margin:0}
+.lead{font-size:var(--t-lg);color:var(--ink-2)}
+.muted{color:var(--ink-2)}
+.sm{font-size:var(--t-sm)}
+.xs{font-size:var(--t-xs)}
+.eyebrow{font-size:var(--t-xs);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px}
+.num{font-variant-numeric:tabular-nums}
+.stack>*+*{margin-top:16px}
+.stack-sm>*+*{margin-top:8px}
+.stack-lg>*+*{margin-top:24px}
+ul.clean{list-style:none;margin:0;padding:0}
+
+/* ---------- Surfaces ---------- */
+.card{background:var(--surface);border:var(--bw) solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow)}
+@container app (min-width:600px){.card{padding:20px}}
+.callout{display:flex;gap:12px;padding:12px 14px;border-radius:var(--r-md);border:var(--bw) solid;align-items:flex-start}
+.callout .ic{margin-top:2px}
+.callout-info{background:var(--info-bg);border-color:var(--info)}.callout-info>.ic{color:var(--info)}
+.callout-warn{background:var(--warn-bg);border-color:var(--warn)}.callout-warn>.ic{color:var(--warn)}
+.callout-bad{background:var(--bad-bg);border-color:var(--bad)}.callout-bad>.ic{color:var(--bad)}
+.callout-ok{background:var(--ok-bg);border-color:var(--ok)}.callout-ok>.ic{color:var(--ok)}
+.callout .act{margin-top:8px}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 22px;border-radius:var(--r-md);border:var(--bw) solid transparent;font:inherit;font-weight:700;font-size:var(--t-md);cursor:pointer;text-decoration:none!important;line-height:1.2;text-align:center}
+.btn-primary{background:var(--primary);color:var(--on-primary)!important}
+.btn-primary:hover,.btn-primary.is-hover{background:var(--primary-hover)}
+.btn-secondary{background:var(--surface);color:var(--ink)!important;border-color:var(--line-strong)}
+.btn-secondary:hover,.btn-secondary.is-hover{background:var(--surface-2)}
+.btn-ghost{background:transparent;color:var(--primary)!important;text-decoration:underline!important;padding:0 12px}
+.btn-sm{min-height:44px;padding:0 14px;font-size:var(--t-sm)}
+.btn[disabled],.btn[aria-disabled=true]{background:var(--surface-3);color:var(--ink-3)!important;border-color:transparent;cursor:not-allowed}
+.btn.is-focus{outline:3px solid var(--focus);outline-offset:2px}
+.btn-block{width:100%}
+.actions{display:flex;flex-direction:column;gap:10px;margin-top:24px}
+@container app (min-width:600px){.actions{flex-direction:row;flex-wrap:wrap;align-items:center}}
+.spin{width:20px;height:20px;border:3px solid var(--surface-3);border-top-color:var(--primary);border-radius:50%;animation:sp .8s linear infinite;flex:none}
+.btn .spin{border-color:rgba(255,255,255,.35);border-top-color:currentColor}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}.frame{scroll-behavior:auto}}
+
+/* ---------- Stepper ---------- */
+.stepper{display:flex;gap:6px;list-style:none;margin:0 0 20px;padding:0;counter-reset:s}
+.stepper li{flex:1;display:flex;flex-direction:column;gap:6px;font-size:var(--t-xs);font-weight:700;color:var(--ink-3)}
+.stepper li::before{content:"";height:6px;border-radius:3px;background:var(--surface-3)}
+.stepper li.done::before{background:var(--primary)}
+.stepper li.cur::before{background:var(--primary)}
+.stepper li.cur{color:var(--ink)}
+.stepper li.stop::before{background:var(--bad)}
+.stepper li.stop{color:var(--bad)}
+.stepper span{display:flex;gap:4px;align-items:center}
+
+/* ---------- Upload ---------- */
+.drop{border:2px dashed var(--line-strong);border-radius:var(--r-lg);padding:28px 16px;text-align:center;background:var(--surface);transition:background .15s}
+.drop.over{border-color:var(--primary);border-style:solid;background:var(--primary-soft)}
+.drop.err{border-color:var(--bad)}
+.drop .big{width:56px;height:56px;margin:0 auto 10px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);color:var(--soil)}
+.drop .big .ic{width:28px;height:28px}
+.drop .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:16px 0 10px}
+.drop .row .btn{flex:1 1 140px;max-width:220px}
+.only-desk{display:none}
+@container app (min-width:900px){.only-desk{display:inline}.only-mob{display:none}}
+.preview{display:grid;grid-template-columns:104px 1fr;gap:14px;align-items:center}
+.preview img{width:104px;height:104px;border-radius:var(--r-md);object-fit:cover;border:var(--bw) solid var(--line)}
+@container app (min-width:600px){.preview{grid-template-columns:180px 1fr}.preview img{width:180px;height:180px}}
+.fname{font-weight:700;word-break:break-all}
+.tips li{display:flex;gap:10px;padding:6px 0}
+.tips .ic{color:var(--ok);margin-top:3px}
+
+/* ---------- Checks / progress ---------- */
+.pbar{height:12px;border-radius:99px;background:var(--surface-3);overflow:hidden;border:var(--bw) solid var(--line)}
+.pbar>i{display:block;height:100%;background:var(--primary);transition:width .3s}
+.checks li{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:12px 0;border-top:var(--bw) solid var(--line)}
+.checks li:first-child{border-top:0}
+.checks .ck-ic{width:28px;height:28px;display:grid;place-items:center}
+.checks .pending{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-strong)}
+.checks .ck-head{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;font-weight:700}
+.tag{display:inline-flex;gap:4px;align-items:center;font-size:var(--t-xs);font-weight:800;padding:2px 9px;border-radius:var(--r-pill);border:var(--bw) solid currentColor;white-space:nowrap}
+.tag .ic{width:14px;height:14px}
+.t-ok{color:var(--ok);background:var(--ok-bg)}.t-warn{color:var(--warn);background:var(--warn-bg)}.t-bad{color:var(--bad);background:var(--bad-bg)}.t-info{color:var(--info);background:var(--info-bg)}.t-mute{color:var(--ink-3);background:var(--surface-2)}
+.c-ok{color:var(--ok)}.c-warn{color:var(--warn)}.c-bad{color:var(--bad)}
+
+/* ---------- Gate outcome ---------- */
+.status-hero{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
+.hero-ic{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;flex:none;border:var(--bw) solid currentColor}
+.hero-ic .ic{width:32px;height:32px}
+.gate-grid{display:grid;gap:16px}
+@container app (min-width:900px){.gate-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}}
+.thumb-row{display:flex;gap:12px;align-items:center}
+.thumb-row img{width:84px;height:84px;border-radius:var(--r-md);object-fit:cover;border:var(--bw) solid var(--line);flex:none}
+.meter-wrap{padding:24px 0 8px}
+.meter{position:relative;height:14px;background:var(--surface-3);border-radius:99px;border:var(--bw) solid var(--line)}
+.meter>i{position:absolute;left:0;top:0;bottom:0;border-radius:99px}
+.meter .tick{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink)}
+.meter .tick span{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-size:var(--t-xs);color:var(--ink-2);white-space:nowrap;font-weight:600}
+.meter .val{position:absolute;bottom:20px;transform:translateX(-50%);font-weight:800;font-size:var(--t-sm);white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r-pill);font-weight:800;font-size:var(--t-sm);border:var(--bw) solid currentColor;white-space:nowrap}
+.badge .ic{width:18px;height:18px}
+.b-high{color:var(--ok);background:var(--ok-bg)}.b-medium{color:var(--warn);background:var(--warn-bg)}.b-low{color:var(--warn);background:var(--warn-bg)}.b-rej{color:var(--bad);background:var(--bad-bg)}.b-est{color:var(--ink-2);background:var(--surface-2)}
+
+/* ---------- Result ---------- */
+.res-head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+.res-grid{display:grid;gap:16px}
+.col{display:grid;gap:16px;align-content:start}
+@container app (min-width:900px){.res-grid{grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:start;gap:24px}}
+.photo{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:var(--r-md);display:block;border:var(--bw) solid var(--line)}
+.stackbar{display:flex;height:30px;border-radius:8px;overflow:hidden;border:var(--bw) solid var(--line);margin-bottom:6px}
+.sw-row{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:var(--bw) solid var(--line)}
+.sw{width:44px;height:44px;border-radius:var(--r-md);border:var(--bw) solid rgba(0,0,0,.2)}
+.app[data-theme=dark] .sw{border-color:rgba(255,255,255,.25)}
+.app[data-theme=sun] .sw{border-color:#000}
+.mini{height:6px;border-radius:3px;background:var(--surface-3);margin-top:6px;overflow:hidden}
+.mini>i{display:block;height:100%;background:var(--ink-2)}
+.pct{font-weight:800;font-size:var(--t-lg);font-variant-numeric:tabular-nums}
+.soil-name{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-bottom:6px}
+.soil-name strong{font-size:var(--t-xl)}
+details.disc{border:var(--bw) solid var(--line);border-radius:var(--r-md);background:var(--surface)}
+details.disc>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:52px;padding:0 14px;font-weight:700;cursor:pointer}
+details.disc>summary::-webkit-details-marker{display:none}
+details.disc>summary .ic{transition:transform .2s}
+details.disc[open]>summary .ic{transform:rotate(180deg)}
+details.disc>.body{padding:4px 14px 16px;border-top:var(--bw) solid var(--line)}
+.chan{display:grid;grid-template-columns:22px 1fr 54px;gap:10px;align-items:start;padding:8px 0}
+.chan b{padding-top:1px}
+.track{position:relative;height:14px;border-radius:4px;border:var(--bw) solid var(--line);margin-bottom:22px}
+.track .mk{position:absolute;top:-6px;bottom:-6px;width:4px;margin-left:-2px;background:var(--ink);border-radius:2px;box-shadow:0 0 0 2px var(--surface)}
+.track .th{position:absolute;top:14px;width:1px;height:6px;background:var(--ink-3)}
+.track .th span{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rules{width:100%;border-collapse:collapse;font-size:var(--t-sm);margin-top:8px}
+.rules th,.rules td{text-align:left;padding:8px 6px;border-top:var(--bw) solid var(--line);vertical-align:top}
+.rules th{font-size:var(--t-xs);color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+.rules tr.hit td{background:var(--primary-soft)}
+.cond{display:inline-flex;align-items:center;gap:3px;margin:0 8px 2px 0;white-space:nowrap}
+.cond .ic{width:14px;height:14px}
+.nuts{display:grid;gap:12px}
+@container app (min-width:600px){.nuts{grid-template-columns:1fr 1fr}}
+.nut{border:var(--bw) solid var(--line);border-radius:var(--r-md);padding:14px;background:var(--surface)}
+.nut-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.nut-name{font-weight:700}
+.lvl{display:inline-flex;align-items:center;gap:4px;font-weight:800;font-size:var(--t-lg)}
+.lvl .ic{width:20px;height:20px}
+.L-low{color:var(--lvl-low)}.L-med{color:var(--lvl-med)}.L-high{color:var(--lvl-high)}
+.band{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:10px 0 8px}
+.seg{min-height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:var(--t-xs);font-weight:700;color:var(--ink-3);background:var(--surface-2);border:var(--bw) solid var(--line);padding:0 4px;text-align:center}
+.seg .ic{width:16px;height:16px}
+.seg.on{color:var(--on-lvl);font-weight:800}
+.seg.on.low{background:var(--lvl-low);border-color:var(--lvl-low)}.seg.on.med{background:var(--lvl-med);border-color:var(--lvl-med)}.seg.on.high{background:var(--lvl-high);border-color:var(--lvl-high)}
+.est{display:flex;gap:6px;align-items:flex-start;font-size:var(--t-xs);color:var(--ink-2);margin-top:8px;font-weight:600}
+.est .ic{width:15px;height:15px;margin-top:2px}
+.crops{display:grid;gap:10px}
+@container app (min-width:600px){.crops{grid-template-columns:1fr 1fr}}
+.crop{display:grid;grid-template-columns:40px 1fr;gap:12px;padding:12px;border:var(--bw) solid var(--line);border-radius:12px;background:var(--surface)}
+.crop .leaf{width:40px;height:40px;border-radius:var(--r-md);display:grid;place-items:center;background:var(--primary-soft);color:var(--primary)}
+.req{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:var(--r-sm);font-size:var(--t-xs);font-weight:700;background:var(--ok-bg);color:var(--ok);border:var(--bw) solid var(--ok)}
+.chip .ic{width:13px;height:13px}
+.chip.miss{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.chip.neutral{background:var(--surface-2);color:var(--ink-2);border-color:var(--line)}
+.empty{text-align:center;padding:28px 18px;border:2px dashed var(--line-strong);border-radius:var(--r-lg);background:var(--surface)}
+.empty .em-ic{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-2)}
+.empty .em-ic .ic{width:30px;height:30px}
+.empty .left{text-align:left;max-width:520px;margin:14px auto 0}
+.calc ol{margin:8px 0 0;padding-left:22px}
+.calc li{padding:6px 0}
+.calc code{font-family:ui-monospace,Consolas,monospace;font-size:.92em;background:var(--surface-2);padding:1px 5px;border-radius:4px;color:var(--ink)}
+
+/* ---------- History ---------- */
+.hist-layout{display:grid;gap:20px;container:hist/inline-size}
+@container app (min-width:900px){.hist-layout{grid-template-columns:380px minmax(0,1fr);align-items:start}.mobile-hide{display:block!important}.hist-detail.solo-mobile{display:block}}
+.mobile-hide{display:none}
+.hist-detail{container:app/inline-size}
+.hlist{display:grid;gap:10px}
+.hcard{display:grid;grid-template-columns:72px 1fr 24px;gap:12px;align-items:center;padding:10px;border-radius:14px;background:var(--surface);border:var(--bw) solid var(--line);text-decoration:none!important;color:inherit!important;min-height:92px}
+.hcard:hover{background:var(--surface-2)}
+.hcard img{width:72px;height:72px;border-radius:var(--r-md);object-fit:cover}
+.hcard[aria-current=true]{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary)}
+.hcard .t{font-weight:800}
+.hcard .s{font-size:var(--t-sm);color:var(--ink-2)}
+.hcard .chev{color:var(--ink-3)}
+.photo{max-height:380px}
+@container hist (min-width:900px){.hist-layout .back{display:none}}
+.back{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-weight:700;margin-bottom:8px}
+
+/* ---------- Home / method / roadmap ---------- */
+.hero{display:grid;gap:20px}
+@container app (min-width:900px){.hero{grid-template-columns:1.1fr .9fr;align-items:center;gap:40px}}
+.hero-img{border-radius:20px;overflow:hidden;position:relative;border:var(--bw) solid var(--line)}
+.hero-img img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.hero-img figcaption{position:absolute;left:10px;bottom:10px;background:rgba(20,17,13,.82);color:#fff;font-size:12px;padding:4px 8px;border-radius:6px}
+.steps{display:grid;gap:12px;counter-reset:st}
+@container app (min-width:600px){.steps{grid-template-columns:1fr 1fr}}
+@container app (min-width:900px){.steps{grid-template-columns:repeat(4,1fr)}}
+.step{display:grid;gap:6px;align-content:start}
+.step .n{width:36px;height:36px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-weight:800}
+.cant li{display:flex;gap:10px;padding:8px 0;border-top:var(--bw) solid var(--line)}
+.cant li:first-child{border-top:0}
+.cant .ic{color:var(--bad);margin-top:3px}
+.two{display:grid;gap:16px}
+@container app (min-width:900px){.two{grid-template-columns:1fr 1fr}}
+.method-step{display:grid;grid-template-columns:44px 1fr;gap:14px}
+.method-step .n{width:44px;height:44px;border-radius:50%;background:var(--soil);color:#fff;display:grid;place-items:center;font-weight:800;font-size:var(--t-lg)}
+.lim{margin-top:10px;padding:10px 12px;border-left:4px solid var(--warn);background:var(--warn-bg);border-radius:0 8px 8px 0;font-size:var(--t-sm)}
+.road li{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:14px;border:var(--bw) solid var(--line);border-radius:12px;background:var(--surface);margin-top:10px}
+.road li.planned{border-style:dashed;background:transparent}
+.road .ic{margin-top:2px}
+
+/* ---------- Design-system page ---------- */
+.ds-sec{margin-top:28px}
+.tok{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tok div{border:var(--bw) solid var(--line);border-radius:var(--r-md);overflow:hidden;background:var(--surface);font-size:var(--t-xs)}
+.tok i{display:block;height:44px;border-bottom:var(--bw) solid var(--line)}
+.tok p{padding:6px 8px}
+.gallery{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.lbl{display:block;font-size:var(--t-xs);color:var(--ink-3);font-weight:700;margin-bottom:4px}
+.ttable{width:100%;border-collapse:collapse;font-size:var(--t-sm)}
+.ttable td,.ttable th{padding:8px;border-top:var(--bw) solid var(--line);text-align:left;vertical-align:top}
+</style>
+</head>
+<body>
+
+<div class="proto" role="region" aria-label="Prototype controls">
+  <b>SAWA PROTOTYPE</b>
+  <label>Screen
+    <select id="pc-screen">
+      <option value="">— jump to —</option>
+      <optgroup label="Core">
+        <option value="home">Home</option>
+        <option value="an-empty">Analyze · no photo yet</option>
+        <option value="an-preview">Analyze · photo selected</option>
+        <option value="check">Photo check · running</option>
+      </optgroup>
+      <optgroup label="Validation outcomes">
+        <option value="gate-rej">Rejected</option>
+        <option value="gate-unc">Uncertain</option>
+        <option value="gate-high">Analyzed · High confidence</option>
+        <option value="gate-med">Analyzed · Medium confidence</option>
+      </optgroup>
+      <optgroup label="Results">
+        <option value="res-high">Result · Loamy, crops matched</option>
+        <option value="res-empty">Result · no crop matches</option>
+      </optgroup>
+      <optgroup label="History">
+        <option value="hist">History list</option>
+        <option value="hist-empty">History · empty</option>
+        <option value="hist-detail">History detail</option>
+      </optgroup>
+      <optgroup label="Errors">
+        <option value="an-type">Error · unsupported file type</option>
+        <option value="an-size">Error · file too large</option>
+        <option value="an-unread">Error · unreadable image</option>
+      </optgroup>
+      <optgroup label="Info">
+        <option value="method">About / Method</option>
+        <option value="roadmap">Roadmap</option>
+        <option value="system">Design system &amp; components</option>
+      </optgroup>
+    </select>
+  </label>
+  <label>Viewport
+    <select id="pc-frame"><option value="360">Phone 360</option><option value="390" selected>Phone 390</option><option value="768">Tablet 768</option><option value="desk">Desktop</option></select>
+  </label>
+  <label>Theme
+    <select id="pc-theme"><option value="light">Light</option><option value="dark">Dark</option><option value="sun">Sunlight (high contrast)</option></select>
+  </label>
+  <label>Backend
+    <select id="pc-net"><option value="on">Online</option><option value="off">Offline / unavailable</option></select>
+  </label>
+  <label>Simulated gate outcome
+    <select id="pc-outcome"><option value="high">Analyzed · High</option><option value="medium">Analyzed · Medium</option><option value="uncertain">Uncertain</option><option value="rejected">Rejected</option></select>
+  </label>
+  <span class="note">Prototype only: the photo check outcome is simulated with the control above. If you upload your own photo, colours, soil type, nutrients and crops are computed from it with the same formulas as the app (minus the random variation). History entries are sample data, generated images, not real photos.</span>
+</div>
+
+<div class="stage">
+  <div class="frame" id="frame">
+    <div class="app" id="app" data-theme="light">
+      <header class="hdr">
+        <a class="brand" href="#/" aria-label="SAWA home">
+          <span class="mark"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18c3-1 5-1 7 0s4 1 6 0 4-1 7 0"/><path d="M2 14c3-1 5-1 7 0s4 1 6 0 4-1 7 0"/><path d="M12 10V3"/><path d="M12 6c-2-2-4-2-5-1 1 2 3 2 5 1zM12 5c2-2 4-2 5-1-1 2-3 2-5 1z"/></svg></span>
+          <span>SAWA<small>Soil Analysis Web App</small></span>
+        </a>
+        <nav class="topnav" aria-label="Main">
+          <a href="#/analyze" data-nav="analyze">Analyze</a>
+          <a href="#/history" data-nav="history">History</a>
+          <a href="#/method" data-nav="method">Method</a>
+          <a href="#/roadmap" data-nav="roadmap">Roadmap</a>
+        </nav>
+        <div class="hdr-right">
+          <span id="net" class="net on" role="status"></span>
+          <button class="iconbtn" data-action="theme" id="theme-btn" aria-label="Change display mode"></button>
+        </div>
+      </header>
+      <main id="view" tabindex="-1"></main>
+      <footer class="foot">
+        SAWA is a student project. Results are estimated from photo colour, not lab tests.
+        <nav aria-label="Footer"><a href="#/method">How it works</a><a href="#/roadmap">Roadmap</a><a href="#/system">Design system</a></nav>
+      </footer>
+      <nav class="bnav" aria-label="Main">
+        <a href="#/" data-nav="home"></a>
+        <a href="#/analyze" data-nav="analyze"></a>
+        <a href="#/history" data-nav="history"></a>
+        <a href="#/method" data-nav="method"></a>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-pick" accept="image/jpeg,image/png" hidden>
+<input type="file" id="file-cam" accept="image/*" capture="environment" hidden>
+
+<script>
+/* =========================================================================
+   Icons
+   ========================================================================= */
+const P = {
+  check:'<polyline points="20 6 9 17 4 12"/>',
+  x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  alert:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  info:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+  xcircle:'<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
+  okcircle:'<circle cx="12" cy="12" r="10"/><polyline points="16 9 10.5 15 8 12.5"/>',
+  half:'<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor"/>',
+  help:'<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  camera:'<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
+  home:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  flag:'<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
+  right:'<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+  left:'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',
+  chevd:'<polyline points="6 9 12 15 18 9"/>',
+  chevr:'<polyline points="9 18 15 12 9 6"/>',
+  wifioff:'<line x1="1" y1="1" x2="23" y2="23"/><path d="M16.7 11.1A11 11 0 0 1 19 12.6"/><path d="M5 12.6a11 11 0 0 1 5.2-2.4"/><path d="M10.7 5.1A16 16 0 0 1 22.6 9"/><path d="M1.4 9a16 16 0 0 1 4.7-2.9"/><path d="M8.5 16.1a6 6 0 0 1 7 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>',
+  wifi:'<path d="M5 12.6a11 11 0 0 1 14 0"/><path d="M1.4 9a16 16 0 0 1 21.2 0"/><path d="M8.5 16.1a6 6 0 0 1 7 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>',
+  sun:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/>',
+  moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>',
+  contrast:'<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor"/>',
+  leaf:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10z"/><path d="M2 21c0-3 1.9-5.4 5.1-6C9.5 14.5 12 13 13 12"/>',
+  up:'<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>',
+  down:'<line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>',
+  minus:'<line x1="5" y1="12" x2="19" y2="12"/>',
+  filex:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9.5" y1="12.5" x2="14.5" y2="17.5"/><line x1="14.5" y1="12.5" x2="9.5" y2="17.5"/>',
+  layers:'<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  refresh:'<polyline points="23 4 23 10 17 10"/><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10"/>',
+  device:'<rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>',
+  server:'<rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>',
+  lab:'<path d="M9 2v6L4 18a2 2 0 0 0 1.8 3h12.4A2 2 0 0 0 20 18l-5-10V2"/><line x1="8" y1="2" x2="16" y2="2"/><line x1="7" y1="14" x2="17" y2="14"/>',
+};
+const icon = (n, cls='') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${P[n]||''}</svg>`;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r1 = v => Math.round(v*10)/10;
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+const hex = c => '#'+c.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('').toUpperCase();
+const rgb = c => `rgb(${c.map(Math.round).join(',')})`;
+const fmtDate = d => new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric'}).format(d);
+const fmtTime = d => new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit'}).format(d);
+const fmtMB = b => (b/1048576).toFixed(1)+' MB';
+
+/* =========================================================================
+   Algorithm port (mirrors src/lib/soil-engine.ts, noise omitted)
+   ========================================================================= */
+const CROPS = {
+  Tomato:{ph:[6.0,6.8],n:'high',p:'medium',k:'high'}, 'Sweet Corn':{ph:[6.0,6.8],n:'high',p:'medium',k:'medium'},
+  Lettuce:{ph:[6.0,7.0],n:'medium',p:'medium',k:'high'}, Carrots:{ph:[6.0,7.0],n:'low',p:'medium',k:'high'},
+  Potatoes:{ph:[5.8,6.2],n:'medium',p:'high',k:'high'}, Beans:{ph:[6.0,7.0],n:'low',p:'medium',k:'medium'},
+  Peppers:{ph:[6.0,6.8],n:'medium',p:'medium',k:'high'}, Spinach:{ph:[6.0,7.5],n:'high',p:'medium',k:'high'},
+  Broccoli:{ph:[6.0,7.0],n:'high',p:'medium',k:'medium'}, Cabbage:{ph:[6.0,6.5],n:'high',p:'medium',k:'medium'},
+  Wheat:{ph:[6.0,7.0],n:'high',p:'medium',k:'medium'}, Rice:{ph:[5.5,6.5],n:'high',p:'medium',k:'medium'},
+  Soybeans:{ph:[6.0,6.8],n:'low',p:'medium',k:'high'}, Sunflower:{ph:[6.0,7.5],n:'medium',p:'medium',k:'high'},
+  Cucumber:{ph:[6.0,7.0],n:'medium',p:'medium',k:'high'},
+};
+const RULES = [
+  {soil:'Sandy', conds:[['R','>',180],['G','>',140],['B','>',100]]},
+  {soil:'Loamy', conds:[['R','>',100],['G','>',80],['B','>',60],['R','<',150]]},
+  {soil:'Clay',  conds:[['R','<',100],['G','<',80],['B','<',60]]},
+  {soil:'Silty', conds:[['R','>',120],['G','>',100],['B','<',80]]},
+];
+const SOIL_DESC = {
+  Sandy:'Light, pale colour. Sandy soils usually drain fast and hold fewer nutrients.',
+  Loamy:'Mid-brown colour. Loam is usually a mix of sand, silt and clay.',
+  Silty:'Yellow-brown colour. Silty soils usually feel smooth and hold water well.',
+  Clay:'Dark colour. Clay soils usually hold water and nutrients but drain slowly.',
+  Mixed:'The colours did not fit one rule clearly.',
+};
+function avgColor(cols){ const s=cols.reduce((a,c)=>[a[0]+c[0],a[1]+c[1],a[2]+c[2]],[0,0,0]); return s.map(v=>v/cols.length); }
+function evalRules([R,G,B]){
+  const V={R,G,B}; let hit=null;
+  const rows = RULES.map(rule=>{
+    const conds = rule.conds.map(([ch,op,t])=>({ch,op,t,v:V[ch],pass: op==='>'?V[ch]>t:V[ch]<t, margin:Math.abs(V[ch]-t)}));
+    const all = conds.every(c=>c.pass);
+    const checked = hit===null;
+    if(all && hit===null) hit=rule.soil;
+    return {soil:rule.soil, conds, all, checked};
+  });
+  return {soil: hit||'Mixed', rows};
+}
+function nutrientsFrom(avg, soil, kOverride){
+  const d = 1 - (avg[0]+avg[1]+avg[2])/765;
+  const ph = r1(clamp(7.5 - d*2, 5, 8));
+  const n = r1(clamp(d*100, 10, 150));
+  const p = r1(clamp((d*0.7+0.3)*80, 5, 100));
+  const k = r1(kOverride ?? (soil==='Clay'?80: soil==='Sandy'?40:60));
+  return {d, ph, n, p, k};
+}
+const NUT = [
+  {key:'ph', name:'pH (acidity)', bands:['Acidic','Neutral','Alkaline'], tone:['low','high','med'], icons:['down','minus','up'], cuts:[6.0,7.5], range:'5.0–8.0', unit:'pH', cutText:'Acidic below 6.0 · Alkaline above 7.5'},
+  {key:'n', name:'Nitrogen (N)', bands:['Low','Medium','High'], tone:['low','med','high'], icons:['down','minus','up'], cuts:[40,80], range:'10–150', unit:'score', cutText:'Low below 40 · High above 80'},
+  {key:'p', name:'Phosphorus (P)', bands:['Low','Medium','High'], tone:['low','med','high'], icons:['down','minus','up'], cuts:[30,60], range:'5–100', unit:'score', cutText:'Low below 30 · High above 60'},
+  {key:'k', name:'Potassium (K)', bands:['Low','Medium','High'], tone:['low','med','high'], icons:['down','minus','up'], cuts:[40,70], range:'20–120', unit:'score', cutText:'Low below 40 · High above 70'},
+];
+const bandIdx = (v,cuts) => v<cuts[0]?0 : v>cuts[1]?2 : 1;
+function recommend(nu){
+  const lv = {n: nu.n>80?'high':nu.n>40?'medium':'low', p: nu.p>60?'high':nu.p>30?'medium':'low', k: nu.k>70?'high':nu.k>40?'medium':'low'};
+  const ok = (req,l) => req!=='high' || l!=='low';
+  const all=[], phOnly=[];
+  for(const [name,req] of Object.entries(CROPS)){
+    const phOk = nu.ph>=req.ph[0] && nu.ph<=req.ph[1];
+    if(phOk) phOnly.push(name);
+    if(phOk && ok(req.n,lv.n) && ok(req.p,lv.p) && ok(req.k,lv.k)) all.push(name);
+  }
+  return {lv, all, shown: all.slice(0,8), phOnly};
+}
+
+/* =========================================================================
+   Gate fixtures (prototype: outcome simulated)
+   ========================================================================= */
+const CHECKS = {
+  high:[
+    ['Resolution','pass','1,024 × 768 px. Enough detail to work with.'],
+    ['Exposure','pass','Even exposure. Few pixels are too dark or blown out.'],
+    ['Surface detail','pass','Grain and texture are visible, as expected in a close-up of soil.'],
+    ['Colour composition','pass','86% of pixels are in brown, tan or grey-brown soil hues.'],
+    ['Vegetation signal','pass','3% of pixels are green. Little or no plant cover.'],
+    ['Sky / water signal','pass','1% of pixels are sky or water blues.'],
+  ],
+  medium:[
+    ['Resolution','pass','1,024 × 768 px. Enough detail to work with.'],
+    ['Exposure','warn','Bright: 24% of pixels are blown out.'],
+    ['Surface detail','pass','Grain and texture are visible.'],
+    ['Colour composition','pass','64% of pixels are in soil hues.'],
+    ['Vegetation signal','warn','27% of pixels are green. Some plant cover in the frame.'],
+    ['Sky / water signal','pass','2% of pixels are sky or water blues.'],
+  ],
+  uncertain:[
+    ['Resolution','pass','800 × 600 px. Enough detail to work with.'],
+    ['Exposure','warn','Dim: 38% of pixels are near-black.'],
+    ['Surface detail','warn','Little surface detail. The photo may be blurred or taken from too far away.'],
+    ['Colour composition','warn','41% of pixels are in soil hues. More than half would be better.'],
+    ['Vegetation signal','pass','6% of pixels are green.'],
+    ['Sky / water signal','pass','0% of pixels are sky or water blues.'],
+  ],
+  rejected:[
+    ['Resolution','pass','1,280 × 960 px. Enough detail to work with.'],
+    ['Exposure','pass','Even exposure.'],
+    ['Surface detail','warn','Large smooth areas with little texture.'],
+    ['Colour composition','fail','18% of pixels are in soil hues.'],
+    ['Vegetation signal','warn','29% of pixels are green.'],
+    ['Sky / water signal','fail','64% of pixels are sky or water blues.'],
+  ],
+};
+const GATE = {
+  high:{kind:'high', verdict:'passed', conf:94, band:'high'},
+  medium:{kind:'medium', verdict:'passed', conf:78, band:'medium'},
+  uncertain:{kind:'uncertain', verdict:'uncertain', conf:58, band:'low',
+    reason:'There isn’t enough clear soil in this photo to analyse it reliably. It is dim and shows little surface detail.',
+    rec:'Retake in daylight, closer to the soil, and hold the phone steady.'},
+  rejected:{kind:'rejected', verdict:'rejected', conf:null, band:'rej',
+    reason:'Most of the frame looks like sky or water: 64% of pixels are blue or grey-blue.',
+    rec:'Take a close-up where bare soil fills most of the frame, in even daylight.'},
+};
+
+/* =========================================================================
+   Generated sample images (procedural, not real photos)
+   ========================================================================= */
+function rng(seed){ return () => { seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function soilImage(colors, pcts, seed, mode='soil', size=320){
+  const c=document.createElement('canvas'); c.width=c.height=size; const x=c.getContext('2d'); const r=rng(seed);
+  const pick=()=>{ let v=r()*100,a=0; for(let i=0;i<colors.length;i++){ a+=pcts[i]; if(v<=a) return colors[i]; } return colors[0]; };
+  const fill=(col,a=1)=>x.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${a})`;
+  let y0=0;
+  if(mode==='sky'){
+    const g=x.createLinearGradient(0,0,0,size*.64); g.addColorStop(0,'#6FA6DD'); g.addColorStop(1,'#CFE2F1');
+    x.fillStyle=g; x.fillRect(0,0,size,size*.64); y0=size*.64;
+  }
+  fill(colors[0]); x.fillRect(0,y0,size,size-y0);
+  for(let i=0;i<(mode==='sky'?900:2800);i++){
+    const big=r()<.04, rad=(big?6:1)+r()*(big?12:4);
+    fill(pick(), .5+r()*.5); x.beginPath();
+    x.ellipse(r()*size, y0+r()*(size-y0), rad, rad*(.5+r()*.8), r()*Math.PI, 0, Math.PI*2); x.fill();
+  }
+  if(mode==='sky'){
+    for(let i=0;i<70;i++){ x.fillStyle=r()<.5?'#4E7A3A':'#6B9A4C'; x.beginPath(); x.ellipse(r()*size, size*.64+(r()-.5)*14, 6+r()*16, 5+r()*10, 0, 0, Math.PI*2); x.fill(); }
+    for(let i=0;i<5;i++){ x.fillStyle='rgba(255,255,255,.7)'; x.beginPath(); x.ellipse(r()*size, r()*size*.4, 30+r()*30, 8+r()*8, 0, 0, Math.PI*2); x.fill(); }
+  }
+  const d=x.getImageData(0,0,size,size);
+  for(let i=0;i<d.data.length;i+=4){ const n=(r()-.5)*26; d.data[i]+=n; d.data[i+1]+=n; d.data[i+2]+=n; }
+  x.putImageData(d,0,0);
+  if(mode==='dim'){
+    const c2=document.createElement('canvas'); c2.width=c2.height=size; const y=c2.getContext('2d');
+    y.filter='blur(3px) brightness(.38)'; y.drawImage(c,0,0); return c2.toDataURL('image/jpeg',.85);
+  }
+  return c.toDataURL('image/jpeg',.85);
+}
+const SAMPLES = {
+  loamy:{colors:[[112,84,62],[138,104,76],[92,70,52],[158,124,92],[74,56,42]], pcts:[31,24,19,15,11]},
+  sandy:{colors:[[236,214,180],[224,198,160],[244,226,196],[210,182,142],[236,205,172]], pcts:[32,24,18,15,11]},
+  clay: {colors:[[72,54,40],[58,44,34],[86,64,48],[50,38,30],[96,74,56]], pcts:[34,22,18,15,11]},
+  silty:{colors:[[168,140,70],[150,124,62],[182,152,78],[140,116,58],[160,132,72]], pcts:[30,25,18,15,12]},
+};
+const IMG = {};
+IMG.loamy = soilImage(SAMPLES.loamy.colors, SAMPLES.loamy.pcts, 7);
+IMG.sandy = soilImage(SAMPLES.sandy.colors, SAMPLES.sandy.pcts, 11);
+IMG.clay  = soilImage(SAMPLES.clay.colors, SAMPLES.clay.pcts, 19);
+IMG.silty = soilImage(SAMPLES.silty.colors, SAMPLES.silty.pcts, 23);
+IMG.sky   = soilImage([[120,96,70],[96,76,56],[140,112,84]], [50,30,20], 31, 'sky');
+IMG.dim   = soilImage(SAMPLES.loamy.colors, SAMPLES.loamy.pcts, 41, 'dim');
+
+function makeAnalysis({id, date, colors, pcts, gateKind, conf, k, img, source, name}){
+  const avg = avgColor(colors);
+  const rules = evalRules(avg);
+  const nu = nutrientsFrom(avg, rules.soil, k);
+  return {id, date, colors, pcts, avg, rules, soil:rules.soil, nu, crops:recommend(nu),
+    gate:{...GATE[gateKind], conf: conf ?? GATE[gateKind].conf, checks:CHECKS[gateKind]}, img, source, name};
+}
+const A1 = makeAnalysis({id:'a-1011', date:new Date(2026,9,11,9,42), ...SAMPLES.loamy, gateKind:'high', img:IMG.loamy, source:'server', name:'sample-loamy.jpg'});
+const A2 = makeAnalysis({id:'a-1009', date:new Date(2026,9,9,16,5), ...SAMPLES.sandy, gateKind:'medium', conf:81, k:34, img:IMG.sandy, source:'server', name:'plot-east.jpg'});
+const A3 = makeAnalysis({id:'a-1004', date:new Date(2026,9,4,7,58), ...SAMPLES.clay, gateKind:'high', conf:91, img:IMG.clay, source:'server', name:'lower-field.jpg'});
+const A4 = makeAnalysis({id:'a-0928', date:new Date(2026,8,28,12,30), ...SAMPLES.silty, gateKind:'medium', conf:74, img:IMG.silty, source:'device', name:'riverbank.jpg'});
+
+/* =========================================================================
+   State
+   ========================================================================= */
+const S = {theme:'light', online:true, frame:'390', outcome:'high', histEmpty:false,
+  upload:{status:'idle'}, current:A1, lastGate:null, history:[A1,A2,A3,A4], run:0, lastRoute:''};
+const app = document.getElementById('app'), view = document.getElementById('view'), frame = document.getElementById('frame');
+
+/* =========================================================================
+   Shared fragments
+   ========================================================================= */
+const DISCLAIMER = `<div class="callout callout-info" role="note">${icon('info')}<p><strong>Estimated from photo colour, not a lab test.</strong> Use a lab for fertiliser decisions.</p></div>`;
+const EST = `<p class="est">${icon('info')}<span>Estimated from colour analysis, not a lab test.</span></p>`;
+function offlineBanner(ctx){
+  if(S.online) return '';
+  const msg = {
+    analyze:'The server can’t be reached. The analysis will run on this device, and the result will be saved in this browser only.',
+    history:'The server can’t be reached. Showing analyses saved in this browser. Server history will appear when the connection is back.',
+    result:'Offline mode: this analysis ran on this device. It is saved in this browser only and won’t appear on other devices.',
+    home:'Offline mode: SAWA still works. Analyses run on this device and are saved in this browser.',
+  }[ctx];
+  return `<div class="callout callout-warn" role="status">${icon('wifioff')}<div><p>${msg}</p><div class="act"><button class="btn btn-secondary btn-sm" data-action="retry">${icon('refresh')}Try connecting again</button></div></div></div>`;
+}
+function stepper(cur, stopped){
+  const L=['Photo','Photo check','Results'];
+  return `<ol class="stepper" aria-label="Progress">${L.map((l,i)=>{
+    const n=i+1; let cls = n<cur?'done': n===cur?(stopped?'stop':'cur'):'';
+    const ic = n<cur?icon('check'): (n===cur&&stopped)?icon('x'):'';
+    return `<li class="${cls}" ${n===cur?'aria-current="step"':''}><span>${ic}${n}. ${l}</span><span class="sr">${n<cur?'(done)':n===cur?(stopped?'(stopped)':'(current)'):'(not started)'}</span></li>`;
+  }).join('')}</ol>`;
+}
+function confBadge(g){
+  if(g.verdict==='rejected') return `<span class="badge b-rej">${icon('xcircle')}Rejected</span>`;
+  if(g.band==='high') return `<span class="badge b-high">${icon('okcircle')}High confidence · ${g.conf}%</span>`;
+  if(g.band==='medium') return `<span class="badge b-medium">${icon('half')}Medium confidence · ${g.conf}%</span>`;
+  return `<span class="badge b-low">${icon('help')}Uncertain · ${g.conf}%</span>`;
+}
+function checkRow([label,st,text]){
+  const m = {pass:['okcircle','c-ok','t-ok','OK'], warn:['alert','c-warn','t-warn','Weak'], fail:['xcircle','c-bad','t-bad','Fail']}[st];
+  return `<li><span class="ck-ic ${m[1]}">${icon(m[0])}</span><div><div class="ck-head"><span>${label}</span><span class="tag ${m[2]}">${m[3]}</span></div><p class="sm muted">${text}</p></div></li>`;
+}
+function meter(conf){
+  const col = conf>=90?'var(--ok)':conf>=70?'var(--warn)':'var(--bad)';
+  return `<div class="meter-wrap"><div class="meter" role="img" aria-label="Photo check confidence ${conf}%. 70% needed to analyse, 90% or more is high.">
+    <i style="width:${conf}%;background:${col}"></i>
+    <span class="val" style="left:${conf}%">${conf}%</span>
+    <span class="tick" style="left:70%"><span>70</span></span>
+    <span class="tick" style="left:90%"><span>90</span></span>
+  </div><p class="xs muted" style="margin-top:28px">Marks: 70% needed to analyse · 90% and above is High</p></div>`;
+}
+const CONF_MEANING = `<p class="sm muted"><strong>What this confidence means:</strong> how strongly the photo’s colour and texture look like bare soil. It is <em>not</em> the accuracy of the soil results.</p>`;
+
+/* =========================================================================
+   Screens
+   ========================================================================= */
+function vHome(){
+  return `<div class="stack-lg">
+    ${offlineBanner('home')}
+    <section class="hero">
+      <div class="stack">
+        <p class="eyebrow">Soil Analysis Web App</p>
+        <h1>Photograph your soil. Get a rough read on what’s in it.</h1>
+        <p class="lead">SAWA estimates soil type, nutrient levels and crops that may suit, from the colours in one photo.</p>
+        ${DISCLAIMER}
+        <div class="actions" style="margin-top:8px">
+          <a class="btn btn-primary" href="#/analyze">${icon('camera')}Analyze my soil</a>
+          <button class="btn btn-secondary" data-action="sample">${icon('image')}Try a sample</button>
+        </div>
+      </div>
+      <figure class="hero-img" style="margin:0"><img src="${IMG.loamy}" alt="Close-up of brown soil (generated sample image)"><figcaption>Sample image · generated</figcaption></figure>
+    </section>
+    <section>
+      <h2>How it works</h2>
+      <div class="steps">
+        ${[['Photo check','We check the photo has enough usable soil. If not, we stop and say why.'],
+           ['Main colours','We find the 5 main colours and how much of the photo each covers.'],
+           ['Estimates','Colour rules give a soil type and rough pH, N, P and K bands.'],
+           ['Crop match','We list crops from a 15-crop list whose needs fit the estimate.']]
+          .map((s,i)=>`<div class="card step"><span class="n">${i+1}</span><h3>${s[0]}</h3><p class="sm muted">${s[1]}</p></div>`).join('')}
+      </div>
+      <p class="sm" style="margin-top:10px"><a href="#/method">Read the full method and its limits</a></p>
+    </section>
+    <section class="card">
+      <h2>What SAWA can’t do</h2>
+      <ul class="clean cant">
+        <li>${icon('x')}<span>Measure nutrients the way a lab test does.</span></li>
+        <li>${icon('x')}<span>Recognise objects or plants. The photo check looks at colour and texture only.</span></li>
+        <li>${icon('x')}<span>Tell you how much fertiliser to use.</span></li>
+        <li>${icon('x')}<span>Account for climate, rainfall, season or irrigation.</span></li>
+      </ul>
+    </section>
+  </div>`;
+}
+
+function vAnalyze(){
+  const u = S.upload;
+  let body = '';
+  if(u.status==='error'){
+    const E = {
+      type:{t:'This file type isn’t supported', b:`<span class="fname">${esc(u.name)}</span> is a ${esc(u.typeLabel)} file. Use a JPEG or PNG photo. On iPhone, you can set Camera › Formats to “Most Compatible”.`},
+      size:{t:'This photo is too large', b:`<span class="fname">${esc(u.name)}</span> is ${fmtMB(u.size)}. The limit is 10 MB. Choose a smaller photo or lower your camera’s resolution.`},
+      unread:{t:'We couldn’t open this image', b:`<span class="fname">${esc(u.name)}</span> may be damaged or only partly downloaded. Try saving it again, or choose another photo.`},
+    }[u.kind];
+    body += `<div class="callout callout-bad" role="alert">${icon('filex')}<div><p><strong>${E.t}</strong></p><p class="sm">${E.b}</p></div></div>`;
+  }
+  if(u.status==='preview'){
+    body += `<div class="card"><div class="preview">
+      <img src="${u.url}" alt="Preview of the selected photo">
+      <div class="stack-sm">
+        <p class="fname">${esc(u.name)}</p>
+        <p class="sm muted num">${fmtMB(u.size)} · ${u.w} × ${u.h} px</p>
+        <p class="sm"><span class="tag t-ok">${icon('check')}Ready to check</span></p>
+        <button class="btn btn-secondary btn-sm" data-action="pick">${icon('refresh')}Replace photo</button>
+      </div></div></div>`;
+  } else {
+    body += `<div class="drop ${u.status==='error'?'err':''}" id="drop">
+      <div class="big">${icon('image')}</div>
+      <p><strong><span class="only-desk">Drag a soil photo here</span><span class="only-mob">Add a photo of your soil</span></strong></p>
+      <p class="sm muted">JPEG or PNG · up to 10 MB</p>
+      <div class="row">
+        <button class="btn btn-secondary" data-action="camera">${icon('camera')}Take photo</button>
+        <button class="btn btn-secondary" data-action="pick">${icon('upload')}Choose file</button>
+      </div>
+    </div>`;
+  }
+  const ready = u.status==='preview';
+  return `${stepper(1)}
+  <div class="two" style="align-items:start">
+    <div class="stack">
+      <div><h1>Add a soil photo</h1><p class="muted">Use a close-up where bare soil fills most of the frame.</p></div>
+      ${offlineBanner('analyze')}
+      ${body}
+      <div class="actions" style="margin-top:4px">
+        <button class="btn btn-primary" data-action="run" ${ready?'':'disabled aria-describedby="run-hint"'}>Run photo check ${icon('right')}</button>
+        ${ready?'':`<button class="btn btn-ghost" data-action="sample">Use the sample photo instead</button>`}
+      </div>
+      ${ready?'':'<p id="run-hint" class="xs muted">Add a photo first.</p>'}
+    </div>
+    <aside class="card">
+      <h2>For a usable photo</h2>
+      <ul class="clean tips">
+        <li>${icon('check')}<span>Fill the frame with bare soil. Move leaves, stones and roots aside.</span></li>
+        <li>${icon('check')}<span>Shoot in daylight, in even light. Avoid hard shadows and direct glare.</span></li>
+        <li>${icon('check')}<span>Hold the phone straight down, about 30 cm above the soil.</span></li>
+        <li>${icon('check')}<span>Keep it steady so the grain is sharp.</span></li>
+      </ul>
+      <p class="xs muted" style="margin-top:10px">Next, SAWA checks the photo before analysing it. If there isn’t enough usable soil, it stops and tells you why.</p>
+    </aside>
+  </div>`;
+}
+
+function vCheck(){
+  const u = S.upload.status==='preview' ? S.upload : sampleUpload();
+  S.upload = u;
+  return `${stepper(2)}
+  <div class="gate-grid">
+    <div class="stack">
+      <div><h1>Checking your photo</h1>
+      <p class="muted">Before any analysis, SAWA checks that the photo shows enough usable soil. This is a colour and texture check. It does not recognise objects.</p></div>
+      <div class="thumb-row"><img src="${u.url}" alt="The photo being checked"><div class="sm"><p class="fname">${esc(u.name)}</p><p class="muted">${S.online?'Checking on this device, then sending to the server':'Checking on this device (offline mode)'}</p></div></div>
+      <div>
+        <div class="pbar" role="progressbar" aria-label="Photo check progress" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0" id="pb"><i style="width:0%"></i></div>
+        <p class="sm muted num" id="pb-label" aria-live="polite" style="margin-top:6px">Starting…</p>
+      </div>
+    </div>
+    <div class="card"><h2>Checks</h2><ul class="clean checks" id="cklist">
+      ${['Resolution','Exposure','Surface detail','Colour composition','Vegetation signal','Sky / water signal'].map(l=>`<li><span class="ck-ic"><span class="pending"></span></span><div><div class="ck-head"><span>${l}</span><span class="tag t-mute">Waiting</span></div></div></li>`).join('')}
+    </ul></div>
+  </div>
+  <div class="actions"><a class="btn btn-secondary" href="#/analyze">Cancel</a></div>`;
+}
+function runCheck(){
+  const token = ++S.run, kind = S.outcome, rows = CHECKS[kind];
+  const lis = [...document.querySelectorAll('#cklist li')];
+  const pb = document.getElementById('pb'), lab = document.getElementById('pb-label');
+  let i = 0;
+  const step = () => {
+    if(token!==S.run || !document.getElementById('cklist')) return;
+    if(i>0){ const tmp=document.createElement('ul'); tmp.innerHTML=checkRow(rowFor(kind,i-1)); lis[i-1].replaceWith(tmp.firstElementChild); }
+    if(i<lis.length){
+      const cur=document.querySelectorAll('#cklist li')[i];
+      cur.querySelector('.ck-ic').innerHTML='<span class="spin" aria-hidden="true"></span>';
+      cur.querySelector('.tag').textContent='Checking'; cur.querySelector('.tag').className='tag t-info';
+      lab.textContent=`Checking ${rows[i][0].toLowerCase()} · ${i+1} of 6`;
+    }
+    pb.setAttribute('aria-valuenow', i); pb.firstElementChild.style.width=(i/6*100)+'%';
+    i++;
+    if(i<=lis.length) setTimeout(step, 420);
+    else { lab.textContent='Check complete'; setTimeout(()=>{ if(token===S.run) finishCheck(kind); }, 450); }
+  };
+  step();
+}
+function rowFor(kind,i){
+  const row = CHECKS[kind][i].slice();
+  if(i===0 && S.upload.w && !S.upload.sample) row[2] = `${S.upload.w.toLocaleString()} × ${S.upload.h.toLocaleString()} px. ${S.upload.w<32||S.upload.h<32?'Too small to analyse.':'Enough detail to work with.'}`;
+  return row;
+}
+function finishCheck(kind){
+  const u = S.upload;
+  if(kind==='high'||kind==='medium'){
+    const base = u.sample ? SAMPLES.loamy : u.km;
+    const a = makeAnalysis({id:'a-'+Date.now(), date:new Date(), colors:base.colors, pcts:base.pcts, gateKind:kind, img:u.url, source:S.online?'server':'device', name:u.name});
+    a.gate.checks = CHECKS[kind].map((_,i)=>rowFor(kind,i));
+    S.current = a; S.history.unshift(a); S.histEmpty=false;
+    S.lastGate = {kind, img:u.url, a};
+    location.hash = '#/gate/passed';
+  } else {
+    const img = u.sample ? (kind==='rejected'?IMG.sky:IMG.dim) : u.url;
+    S.lastGate = {kind, img};
+    location.hash = '#/gate/'+kind;
+  }
+}
+
+function vGate(which){
+  const lg = S.lastGate || {};
+  if(which==='rejected'||which==='uncertain'){
+    const g = GATE[which], rej = which==='rejected';
+    const img = lg.kind===which ? lg.img : (rej?IMG.sky:IMG.dim);
+    return `${stepper(2,true)}
+    <div class="gate-grid">
+      <div class="stack">
+        <div class="status-hero">
+          <span class="hero-ic ${rej?'b-rej':'b-low'}">${icon(rej?'xcircle':'help')}</span>
+          <div><p class="eyebrow">Photo check: ${rej?'Rejected':'Uncertain'}</p>
+          <h1>${rej?'This photo can’t be analysed':'Not sure this photo shows enough soil'}</h1></div>
+        </div>
+        <p class="lead"><strong>${g.reason}</strong></p>
+        ${rej?'':`<div class="card">${confBadge(g)}${meter(g.conf)}${CONF_MEANING}</div>`}
+        <div class="callout callout-ok">${icon('camera')}<div><p><strong>${rej?'What to do':'Recommendation'}</strong></p><p>${g.rec}</p></div></div>
+        <div class="thumb-row"><img src="${img}" alt="The photo that was checked"><p class="sm muted"><strong>No soil results were produced.</strong> SAWA only analyses photos that pass the check, so you won’t see estimates for this one.</p></div>
+        <div class="actions">
+          <button class="btn btn-primary" data-action="retake">${icon('camera')}${rej?'Take another photo':'Retake photo'}</button>
+          <a class="btn btn-ghost" href="#/method">What makes a good photo?</a>
+        </div>
+      </div>
+      <div class="card"><h2>What the check found</h2><ul class="clean checks">${CHECKS[which].map(checkRow).join('')}</ul></div>
+    </div>`;
+  }
+  const a = (lg.a && (lg.kind==='high'||lg.kind==='medium')) ? lg.a : S.current;
+  const g = a.gate, med = g.band==='medium';
+  return `${stepper(2)}
+  <div class="gate-grid">
+    <div class="stack">
+      <div class="status-hero">
+        <span class="hero-ic b-high">${icon('okcircle')}</span>
+        <div><p class="eyebrow">Photo check: Passed</p><h1>This photo looks usable</h1></div>
+      </div>
+      <div class="card">${confBadge(g)}${meter(g.conf)}${CONF_MEANING}</div>
+      ${med?`<div class="callout callout-warn">${icon('alert')}<p>Passed with <strong>medium</strong> confidence. The results may be less reliable. For a better read, retake in daylight with soil filling the frame.</p></div>`:''}
+      <div class="thumb-row"><img src="${a.img}" alt="The photo that passed the check"><p class="sm muted">Next: main colours, soil type, nutrient estimate and crop matches.</p></div>
+      <div class="actions">
+        <a class="btn btn-primary" href="#/result">See soil results ${icon('right')}</a>
+        ${med?'<button class="btn btn-ghost" data-action="retake">Retake photo</button>':''}
+      </div>
+    </div>
+    <div class="card"><h2>What the check found</h2><ul class="clean checks">${g.checks.map(checkRow).join('')}</ul></div>
+  </div>`;
+}
+
+/* ---------- Result ---------- */
+function vResultBody(a){
+  const g=a.gate, d=a.date;
+  const palette = `<section class="card">
+    <h2>Main colours in the photo</h2>
+    <div class="stackbar" role="img" aria-label="Colour proportions: ${a.colors.map((c,i)=>`colour ${i+1} ${a.pcts[i]}%`).join(', ')}">${a.colors.map((c,i)=>`<span style="width:${a.pcts[i]}%;background:${rgb(c)}"></span>`).join('')}</div>
+    <ul class="clean">${a.colors.map((c,i)=>`<li class="sw-row"><span class="sw" style="background:${rgb(c)}"></span>
+      <div><p class="sm"><strong>Colour ${i+1}</strong> <span class="muted num">RGB ${c.map(Math.round).join(', ')} · ${hex(c)}</span></p><div class="mini"><i style="width:${a.pcts[i]}%"></i></div></div>
+      <span class="pct">${a.pcts[i]}%</span></li>`).join('')}</ul>
+    <p class="xs muted" style="margin-top:8px">Found by grouping the photo’s 22,500 pixels (resized to 150 × 150) into 5 colour groups with K-Means clustering. Percent = share of pixels.</p>
+  </section>`;
+
+  const minC = a.rules.rows.find(r=>r.soil===a.soil)?.conds.reduce((m,c)=>c.margin<m.margin?c:m);
+  const near = minC && minC.margin<10;
+  const chName = {R:'Red',G:'Green',B:'Blue'};
+  const ths = {R:[100,120,150,180],G:[80,100,140],B:[60,80,100]};
+  const chanBars = ['R','G','B'].map((ch,i)=>{
+    const v=a.avg[i], grad = ch==='R'?'#000,#f00':ch==='G'?'#000,#0b0':'#000,#00f';
+    return `<div class="chan"><b>${ch}</b><div class="track" style="background:linear-gradient(to right,${grad})" role="img" aria-label="${chName[ch]} ${r1(v)} of 255">
+      ${ths[ch].map(t=>`<span class="th" style="left:${t/255*100}%"><span>${t}</span></span>`).join('')}
+      <span class="mk" style="left:${v/255*100}%"></span></div><span class="num sm"><strong>${r1(v)}</strong></span></div>`;
+  }).join('');
+  const rulesTable = `<table class="rules"><thead><tr><th>Rule (in order)</th><th>Tests</th><th>Result</th></tr></thead><tbody>
+    ${a.rules.rows.map((r,idx)=>{
+      const firstHit = a.rules.rows.findIndex(x=>x.all);
+      const notChecked = firstHit>=0 && idx>firstHit;
+      return `<tr class="${r.soil===a.soil?'hit':''}"><td><strong>${r.soil}</strong></td><td>${r.conds.map(c=>`<span class="cond ${notChecked?'':c.pass?'c-ok':'c-bad'}">${notChecked?'':icon(c.pass?'check':'x')}${c.ch} ${c.op} ${c.t}</span>`).join('')}</td>
+      <td>${notChecked?'<span class="muted">Not checked</span>':r.all?'<strong>Match</strong>':'No'}</td></tr>`;}).join('')}
+    <tr class="${a.soil==='Mixed'?'hit':''}"><td><strong>Mixed</strong></td><td class="muted">If no rule matches</td><td>${a.soil==='Mixed'?'<strong>Match</strong>':'<span class="muted">Not used</span>'}</td></tr>
+  </tbody></table>`;
+  const soil = `<section class="card">
+    <h2>Soil type (from colour)</h2>
+    <div class="soil-name"><strong>${a.soil} soil</strong>${near?`<span class="tag t-warn">${icon('alert')}Close to a boundary</span>`:''}</div>
+    <p class="muted">${SOIL_DESC[a.soil]}</p>
+    <p class="sm" style="margin-top:8px">Colour alone can’t confirm soil type. A feel test or a lab test can.</p>
+    <details class="disc" style="margin-top:14px"><summary>Why this classification ${icon('chevd')}</summary><div class="body stack-sm">
+      <p class="sm">SAWA averages the 5 main colours (each counted equally) and tests that average against colour rules. The first rule that fully matches wins.</p>
+      <div class="thumb-row"><span class="sw" style="background:${rgb(a.avg)};width:56px;height:56px"></span><p class="sm num">Average colour<br><strong>R ${r1(a.avg[0])} · G ${r1(a.avg[1])} · B ${r1(a.avg[2])}</strong></p></div>
+      ${chanBars}
+      <p class="xs muted">Black marker = this photo. Tick marks = rule boundaries.</p>
+      ${rulesTable}
+      ${minC?`<p class="sm" style="margin-top:8px"><strong>Closest boundary:</strong> ${chName[minC.ch]} is ${r1(minC.v)}, which is ${r1(minC.margin)} ${minC.op==='>'?'above':'below'} the ${minC.t} limit. ${near?'A small change in light or moisture could change the soil type.':'Comfortably inside this rule.'}</p>`:''}
+    </div></details>
+  </section>`;
+
+  const nuts = `<section class="card">
+    <div class="res-head" style="margin-bottom:10px"><h2 style="margin:0">Nutrient estimate</h2><span class="badge b-est">${icon('alert')}Estimate confidence: Low</span></div>
+    <p class="sm muted" style="margin-bottom:12px">From a hand-tuned colour formula. It is not a trained model and has not been checked against lab tests. Read the bands, not the numbers.</p>
+    <div class="nuts">${NUT.map(m=>{
+      const v=a.nu[m.key], bi=bandIdx(v,m.cuts), tone=m.tone[bi];
+      return `<div class="nut">
+        <div class="nut-head"><span class="nut-name">${m.name}</span><span class="lvl L-${tone}">${icon(m.icons[bi])}${m.bands[bi]}</span></div>
+        <div class="band" role="img" aria-label="${m.name}: ${m.bands[bi]}. ${m.cutText}.">${m.bands.map((b,j)=>`<span class="seg ${j===bi?'on '+m.tone[j]:''}">${j===bi?icon('check'):''}${b}</span>`).join('')}</div>
+        <p class="xs muted num">${m.key==='ph'?`Estimated pH ≈ ${v.toFixed(1)}`:`Score ≈ ${Math.round(v)} (unitless, ${m.range})`} · ${m.cutText}</p>
+        ${EST}</div>`;}).join('')}</div>
+  </section>`;
+
+  const c = a.crops;
+  let cropBody;
+  if(c.all.length===0){
+    const lvName={n:'nitrogen',p:'phosphorus',k:'potassium'};
+    const fails = c.phOnly.map(name=>{ const r=CROPS[name]; const f=['n','p','k'].filter(k=>r[k]==='high'&&c.lv[k]==='low').map(k=>lvName[k]); return `${name} (${f.join(', ')})`; });
+    const phTxt = c.phOnly.length===0 ? `No crop in the list accepts an estimated pH of ${a.nu.ph.toFixed(1)}.`
+      : `${c.phOnly.length} of the 15 crops accept an estimated pH of ${a.nu.ph.toFixed(1)}, but each needs a nutrient level this estimate shows as low: ${fails.join('; ')}.`;
+    cropBody = `<div class="empty" role="status">
+      <div class="em-ic">${icon('leaf')}</div>
+      <h3>No crops in our list match this estimate</h3>
+      <div class="left stack-sm sm">
+        <p>${phTxt}</p>
+        <p><strong>This is a limit of SAWA’s crop list, not a verdict on your land.</strong> The list has 15 crops and none of them are listed for low phosphorus or low potassium.</p>
+        <p class="muted">What you can do: get a lab soil test, or ask your local agricultural extension office which crops suit this soil.</p>
+      </div></div>`;
+  } else {
+    cropBody = `<p class="sm muted" style="margin-bottom:12px">${c.all.length} of 15 crops matched${c.all.length>8?'; showing the first 8':''}. Shown in list order, not ranked.</p>
+    <ul class="clean crops">${c.shown.map(name=>{const r=CROPS[name]; return `<li class="crop"><span class="leaf">${icon('leaf')}</span><div>
+      <h3>${name}</h3><p class="xs muted num">pH ${r.ph[0].toFixed(1)}–${r.ph[1].toFixed(1)}</p>
+      <div class="req">${['n','p','k'].map(k=>`<span class="chip" title="Needs ${r[k]}; estimate is ${c.lv[k]}">${icon('check')}${k.toUpperCase()} ${r[k]}<span class="sr">: requirement met</span></span>`).join('')}<span class="chip">${icon('check')}pH<span class="sr"> in range</span></span></div>
+    </div></li>`;}).join('')}</ul>`;
+  }
+  const crops = `<section class="card"><h2>Crops that may suit this estimate</h2>${cropBody}
+    <p class="xs muted" style="margin-top:12px">A match means the estimate falls inside a crop’s listed needs. It is not a planting recommendation. Climate, water and season are not considered.</p></section>`;
+
+  const calc = `<details class="disc calc"><summary>How this was calculated ${icon('chevd')}</summary><div class="body sm">
+    <ol>
+      <li><strong>Photo check.</strong> Colour and texture heuristic, 6 checks. Confidence ${g.conf}% (70% needed to continue). Not object recognition.</li>
+      <li><strong>Main colours.</strong> Photo resized to 150 × 150 (22,500 pixels), grouped into 5 colours with K-Means clustering (k = 5).</li>
+      <li><strong>Soil type.</strong> Average of the 5 colours = <code>R ${r1(a.avg[0])}, G ${r1(a.avg[1])}, B ${r1(a.avg[2])}</code>, tested against fixed colour rules → <strong>${a.soil}</strong>.</li>
+      <li><strong>Nutrients.</strong> Darkness <code>d = 1 − (R+G+B)/765 = ${a.nu.d.toFixed(2)}</code>.
+        pH <code>= 7.5 − 2d ≈ ${a.nu.ph.toFixed(1)}</code>; N <code>= 100d ≈ ${Math.round(a.nu.n)}</code>; P <code>= 80 × (0.7d + 0.3) ≈ ${Math.round(a.nu.p)}</code>; K = base for ${a.soil} soil <code>= ${a.soil==='Clay'?80:a.soil==='Sandy'?40:60}</code>${Math.round(a.nu.k)!==(a.soil==='Clay'?80:a.soil==='Sandy'?40:60)?`, after random variation <code>≈ ${Math.round(a.nu.k)}</code>`:''}.
+        N, P and K include a small random variation, so running the same photo twice can give slightly different numbers. Hand-tuned, not trained, not lab-validated.</li>
+      <li><strong>Crops.</strong> Each of the 15 crops is kept if the pH is in its range and, where it needs “high” N, P or K, the estimate is at least medium. Up to 8 shown, in list order.</li>
+    </ol>
+    <p style="margin-top:8px"><a href="#/method">Full method and limits</a></p></div></details>`;
+
+  return `<div class="res-head">
+      <div><p class="eyebrow">Soil results</p><h1 style="margin:0">${a.soil} soil</h1>
+      <p class="sm muted num">${fmtDate(d)}, ${fmtTime(d)} · ${a.source==='server'?`${icon('server')} Saved to history`:`${icon('device')} Saved on this device only`}</p></div>
+      ${confBadge(g)}
+    </div>
+    <div class="stack">
+      ${a.source==='device'&&!S.online?offlineBanner('result'):''}
+      ${a.source==='device'&&S.online?`<div class="callout callout-info">${icon('device')}<p class="sm">This analysis ran on this device while the server was unavailable. It is saved in this browser only.</p></div>`:''}
+      ${DISCLAIMER}
+      ${g.band==='medium'?`<div class="callout callout-warn">${icon('alert')}<p class="sm">The photo passed the check with medium confidence (${g.conf}%). Treat these results with extra caution.</p></div>`:''}
+      <div class="res-grid">
+        <div class="col">
+          <section class="card"><img class="photo" src="${a.img}" alt="Analysed soil photo"><p class="xs muted" style="margin-top:8px">Photo check: ${g.band==='high'?'High':'Medium'} confidence, ${g.conf}%.</p></section>
+          ${palette}${soil}
+        </div>
+        <div class="col">${nuts}${crops}${calc}</div>
+      </div>
+    </div>`;
+}
+function vResult(){
+  return `${stepper(3)}${vResultBody(S.current)}
+  <div class="actions"><a class="btn btn-primary" href="#/analyze" data-action="new">${icon('camera')}Analyze another photo</a><a class="btn btn-ghost" href="#/history">See history</a></div>`;
+}
+
+/* ---------- History ---------- */
+function hCard(a, cur){
+  const crops = a.crops.all.length ? a.crops.shown.slice(0,3).join(', ') + (a.crops.all.length>3?` +${a.crops.all.length-3} more`:'') : 'No crop matches';
+  return `<li><a class="hcard" href="#/history/${a.id}" ${cur?'aria-current="true"':''}>
+    <img src="${a.img}" alt="">
+    <div><p class="t">${a.soil} soil</p><p class="s num">${fmtDate(a.date)}, ${fmtTime(a.date)}</p>
+      <p class="s">${a.crops.all.length?icon('leaf'):icon('minus')} ${crops}</p>
+      ${a.source==='device'?`<p class="xs muted">${icon('device')} On this device only</p>`:''}</div>
+    <span class="chev">${icon('chevr')}</span></a></li>`;
+}
+function vHistory(id){
+  const list = S.histEmpty ? [] : (S.online ? S.history : S.history);
+  if(!list.length){
+    return `<h1>History</h1>${offlineBanner('history')}
+    <div class="empty" style="margin-top:16px"><div class="em-ic">${icon('clock')}</div><h2>No analyses yet</h2>
+      <p class="muted">Your results will appear here, newest first, once a photo passes the check.</p>
+      <div class="actions" style="justify-content:center"><a class="btn btn-primary" href="#/analyze">${icon('camera')}Analyze my soil</a></div></div>`;
+  }
+  const sel = id ? list.find(a=>a.id===id) : null;
+  const shown = sel || list[0];
+  return `<div class="hist-layout">
+    <section class="${sel?'mobile-hide':''}">
+      <h1>History</h1><p class="sm muted" style="margin-bottom:12px">Newest first · ${list.length} analyses</p>
+      ${offlineBanner('history')}
+      <ul class="clean hlist" style="margin-top:12px">${list.map(a=>hCard(a, a===shown)).join('')}</ul>
+    </section>
+    <section class="hist-detail ${sel?'':'mobile-hide'}" aria-label="Selected analysis">
+      <a class="back" href="#/history">${icon('left')}History</a>
+      ${vResultBody(shown)}
+      <div class="actions"><a class="btn btn-primary" href="#/analyze" data-action="new">${icon('camera')}Analyze another photo</a></div>
+    </section></div>`;
+}
+
+/* ---------- Method / roadmap ---------- */
+function vMethod(){
+  const steps = [
+    ['Photo check (validation gate)','SAWA checks resolution, exposure, surface detail, and how much of the photo is soil-coloured, green (plants) or blue (sky or water). These combine into a confidence score. Below 70% it stops and explains why. 70–89% is Medium, 90% and above is High.','It measures colour and texture. It does not recognise objects. A brown floor could pass, and pale soil in harsh sun might not.'],
+    ['Main colours (K-Means)','The photo is shrunk to 150 × 150 pixels. K-Means clustering groups the 22,500 pixels into 5 colour groups and reports each group’s share of the photo. This is real unsupervised clustering.','Light, shadow, moisture and camera settings all change the colours it finds.'],
+    ['Soil type','The average of the 5 colours is tested against fixed colour rules for Sandy, Loamy, Clay and Silty. If none fit, the result is Mixed.','Soil type really depends on particle size, which a photo can’t measure. Treat it as a hint.'],
+    ['Nutrients (pH, N, P, K)','A hand-tuned formula turns how dark the soil is into rough pH and N, P, K scores, shown as Low / Medium / High bands. The idea: darker soil often has more organic matter.','Not machine learning. Not trained. Not checked against lab tests. A small random variation is added, so repeat runs differ slightly. Do not use it for fertiliser decisions.'],
+    ['Crop matching','The estimate is compared with a list of 15 crops. A crop is shown if the pH is in its range and its N, P and K needs are met. Up to 8 are shown, in list order.','15 crops is a small list, with none for low phosphorus or low potassium, so some results have no matches. Climate, water and season are not considered.'],
+  ];
+  return `<div class="stack-lg">
+    <div><p class="eyebrow">About</p><h1>How SAWA works</h1>
+    <p class="lead">SAWA looks at the colours in a photo of soil and makes rough estimates from them. Here is each step, what it does, and where it falls short.</p></div>
+    ${DISCLAIMER}
+    <ol class="clean stack">${steps.map((s,i)=>`<li class="card method-step"><span class="n">${i+1}</span><div><h2>${s[0]}</h2><p>${s[1]}</p><p class="lim"><strong>Limits:</strong> ${s[2]}</p></div></li>`).join('')}</ol>
+    <div class="two">
+      <section class="card"><h2>Photo tips</h2><ul class="clean tips">
+        <li>${icon('check')}<span>Bare soil filling most of the frame.</span></li>
+        <li>${icon('check')}<span>Daylight, even light, no hard shadows.</span></li>
+        <li>${icon('check')}<span>Phone held straight down, about 30 cm above.</span></li>
+        <li>${icon('check')}<span>Sharp focus: hold still.</span></li></ul></section>
+      <section class="card"><h2>Online and offline</h2>
+        <p>When the server is reachable, the photo is analysed there and saved to your history.</p>
+        <p style="margin-top:8px">When it isn’t, the same calculations run in your browser and the result is saved on this device only. The method is the same either way.</p></section>
+    </div>
+    <section class="card"><h2>Who made this</h2>
+      <p>SAWA is a student project. <span class="tag t-mute">Placeholder</span> [Student name], [Course], [Institution].</p>
+      <p style="margin-top:8px">Source code: <span class="tag t-mute">Placeholder</span> [repository link]. See what’s shipped and planned on the <a href="#/roadmap">roadmap</a>.</p></section>
+  </div>`;
+}
+function vRoadmap(){
+  const shipped = ['Photo check (validation gate) with Rejected, Uncertain and Analyzed outcomes','Main-colour extraction with K-Means (k = 5)','Soil type from colour rules','Nutrient estimate from colour (hand-tuned formula, shown as bands)','Crop matching against a 15-crop list','History of past analyses (server storage, with an in-memory fallback)','Analysis in the browser when the server is unavailable'];
+  const planned = ['Compare estimates with lab test results, using collected soil photos','A larger crop list, including crops for low phosphorus or low potassium','Plant-health analysis','Growth-stage analysis'];
+  return `<div class="stack-lg">
+    <div><p class="eyebrow">Roadmap</p><h1>What works today, and what’s planned</h1>
+    <p class="lead">Planned items are not in the app. They move to Shipped only when they work.</p></div>
+    <div class="two">
+      <section><h2>${icon('okcircle','c-ok')} Shipped</h2><ul class="clean road">${shipped.map(s=>`<li>${icon('check','c-ok')}<div><p>${s}</p><span class="tag t-ok">Shipped</span></div></li>`).join('')}</ul></section>
+      <section><h2>${icon('clock')} Planned</h2><ul class="clean road">${planned.map(s=>`<li class="planned">${icon('clock')}<div><p>${s}</p><span class="tag t-mute">Planned, not available yet</span></div></li>`).join('')}</ul>
+      <p class="sm muted" style="margin-top:12px">No release dates are promised.</p></section>
+    </div></div>`;
+}
+
+/* ---------- Design system ---------- */
+function vSystem(){
+  const T = [['--bg','Background'],['--surface','Surface'],['--surface-2','Surface 2'],['--surface-3','Surface 3 / track'],['--ink','Text'],['--ink-2','Text secondary'],['--ink-3','Text tertiary'],['--line','Border'],['--line-strong','Border strong'],['--primary','Primary'],['--primary-soft','Primary soft'],['--soil','Brand soil'],['--ok','Success'],['--warn','Warning'],['--bad','Error'],['--info','Info'],['--lvl-low','Level low'],['--lvl-med','Level medium'],['--lvl-high','Level high'],['--focus','Focus ring']];
+  const cs = getComputedStyle(app);
+  const mkNut = (m,v)=>{ const bi=bandIdx(v,m.cuts); return `<div class="nut" style="width:260px"><div class="nut-head"><span class="nut-name">${m.name}</span><span class="lvl L-${m.tone[bi]}">${icon(m.icons[bi])}${m.bands[bi]}</span></div><div class="band">${m.bands.map((b,j)=>`<span class="seg ${j===bi?'on '+m.tone[j]:''}">${j===bi?icon('check'):''}${b}</span>`).join('')}</div>${EST}</div>`; };
+  return `<div class="stack"><p class="eyebrow">Design system</p><h1>Tokens and components</h1>
+  <p class="muted">Values below follow the current theme (switch it in the prototype bar). Full tables and copy deck: <code>design/sawa-design-system.md</code>.</p>
+  <section class="ds-sec"><h2>Colour tokens</h2><div class="tok">${T.map(([v,n])=>`<div><i style="background:var(${v})"></i><p><strong>${n}</strong><br><code>${v}</code> ${cs.getPropertyValue(v).trim()}</p></div>`).join('')}</div></section>
+  <section class="ds-sec"><h2>Type scale</h2><table class="ttable"><tbody>
+    ${[['3xl','--t-3xl','H1 desktop',800],['2xl','--t-2xl','H1 mobile',800],['xl','--t-xl','Soil type name',800],['lg','--t-lg','H2, lead, level label',700],['md','--t-md','Body (17px, 18px in Sunlight)',400],['sm','--t-sm','Secondary text',400],['xs','--t-xs','Labels, disclaimers, tags',700]].map(t=>`<tr><td><code>${t[0]}</code></td><td style="font-size:var(${t[1]});font-weight:${t[3]}">Soil sample</td><td class="muted">${t[2]}</td></tr>`).join('')}
+  </tbody></table></section>
+  <section class="ds-sec"><h2>Spacing and radii</h2><div class="gallery">${[4,8,12,16,24,32,48].map(s=>`<div style="text-align:center"><div style="width:${s}px;height:${s}px;background:var(--primary)"></div><span class="xs">${s}</span></div>`).join('')}
+    ${[['sm',6],['md',10],['lg',16],['pill',999]].map(r=>`<div style="text-align:center"><div style="width:56px;height:40px;border:2px solid var(--ink-2);border-radius:${r[1]}px"></div><span class="xs">${r[0]} ${r[1]===999?'':r[1]+'px'}</span></div>`).join('')}</div></section>
+  <section class="ds-sec"><h2>Buttons</h2><div class="gallery">
+    <div><span class="lbl">Primary</span><button class="btn btn-primary">Run photo check</button></div>
+    <div><span class="lbl">Hover</span><button class="btn btn-primary is-hover">Run photo check</button></div>
+    <div><span class="lbl">Focus</span><button class="btn btn-primary is-focus">Run photo check</button></div>
+    <div><span class="lbl">Disabled</span><button class="btn btn-primary" disabled>Run photo check</button></div>
+    <div><span class="lbl">Loading</span><button class="btn btn-primary" aria-busy="true"><span class="spin"></span>Checking…</button></div>
+    <div><span class="lbl">Secondary</span><button class="btn btn-secondary">${icon('image')}Try a sample</button></div>
+    <div><span class="lbl">Ghost</span><button class="btn btn-ghost">Use the sample photo instead</button></div>
+    <div><span class="lbl">Icon (44×44)</span><button class="iconbtn" aria-label="Display mode">${icon('sun')}</button></div></div></section>
+  <section class="ds-sec"><h2>Upload zone</h2><div class="two">
+    <div><span class="lbl">Idle</span><div class="drop"><div class="big">${icon('image')}</div><p><strong>Drag a soil photo here</strong></p><p class="sm muted">JPEG or PNG · up to 10 MB</p></div></div>
+    <div><span class="lbl">Drag over</span><div class="drop over"><div class="big">${icon('upload')}</div><p><strong>Drop to add this photo</strong></p><p class="sm muted">JPEG or PNG · up to 10 MB</p></div></div>
+    <div><span class="lbl">Preview</span><div class="card"><div class="preview"><img src="${IMG.loamy}" alt=""><div class="stack-sm"><p class="fname">field-plot-3.jpg</p><p class="sm muted">2.4 MB · 1,024 × 768 px</p><span class="tag t-ok">${icon('check')}Ready to check</span></div></div></div></div>
+    <div><span class="lbl">Error</span><div class="callout callout-bad">${icon('filex')}<div><p><strong>This file type isn’t supported</strong></p><p class="sm">Use a JPEG or PNG photo.</p></div></div></div></div></section>
+  <section class="ds-sec"><h2>Palette swatch</h2><ul class="clean card" style="max-width:420px">${SAMPLES.loamy.colors.slice(0,2).map((c,i)=>`<li class="sw-row"><span class="sw" style="background:${rgb(c)}"></span><div><p class="sm"><strong>Colour ${i+1}</strong> <span class="muted">RGB ${c.join(', ')}</span></p><div class="mini"><i style="width:${SAMPLES.loamy.pcts[i]}%"></i></div></div><span class="pct">${SAMPLES.loamy.pcts[i]}%</span></li>`).join('')}
+    <li class="sw-row"><span class="sw" style="background:#3A2E22"></span><div><p class="sm"><strong>Colour 5</strong> <span class="muted">Small share</span></p><div class="mini"><i style="width:2%"></i></div></div><span class="pct">2%</span></li></ul></section>
+  <section class="ds-sec"><h2>Nutrient band</h2><div class="gallery">${mkNut(NUT[1],25)}${mkNut(NUT[1],60)}${mkNut(NUT[1],95)}${mkNut(NUT[0],5.6)}${mkNut(NUT[0],6.6)}${mkNut(NUT[0],7.8)}</div></section>
+  <section class="ds-sec"><h2>Crop chip and crop card</h2><div class="gallery">
+    <span class="chip">${icon('check')}N high</span><span class="chip">${icon('check')}pH</span><span class="chip miss">${icon('x')}K high</span><span class="chip neutral">15-crop list</span>
+    <div class="crop" style="width:300px"><span class="leaf">${icon('leaf')}</span><div><h3>Tomato</h3><p class="xs muted">pH 6.0–6.8</p><div class="req"><span class="chip">${icon('check')}N high</span><span class="chip">${icon('check')}P medium</span><span class="chip">${icon('check')}K high</span></div></div></div></div>
+    <p class="xs muted" style="margin-top:6px">The "miss" chip is used only to explain empty states. Unmatched crops are never listed as recommendations.</p></section>
+  <section class="ds-sec"><h2>Confidence badge</h2><div class="gallery">
+    ${confBadge({verdict:'passed',band:'high',conf:94})}${confBadge({verdict:'passed',band:'medium',conf:78})}${confBadge({verdict:'uncertain',band:'low',conf:58})}${confBadge({verdict:'rejected'})}<span class="badge b-est">${icon('alert')}Estimate confidence: Low</span></div>
+    <div style="max-width:420px">${meter(78)}</div></section>
+  <section class="ds-sec"><h2>History card</h2><ul class="clean hlist" style="max-width:420px">${hCard(A1,false)}${hCard(A1,true).replace('<li>','<li><span class="lbl">Selected (desktop)</span>')}${hCard(A2,false)}${hCard(A4,false)}</ul></section>
+  <section class="ds-sec"><h2>Status tags and callouts</h2><div class="gallery"><span class="tag t-ok">${icon('check')}OK</span><span class="tag t-warn">${icon('alert')}Weak</span><span class="tag t-bad">${icon('x')}Fail</span><span class="tag t-info">Checking</span><span class="tag t-mute">Waiting</span><span class="net on">${icon('wifi')}Online</span><span class="net off">${icon('wifioff')}Offline</span></div>
+    <div class="stack-sm" style="margin-top:12px">${DISCLAIMER}<div class="callout callout-warn">${icon('alert')}<p>Warning callout</p></div><div class="callout callout-bad">${icon('xcircle')}<p>Error callout</p></div><div class="callout callout-ok">${icon('okcircle')}<p>Guidance callout</p></div></div></section>
+  </div>`;
+}
+
+/* =========================================================================
+   Upload handling (real file checks)
+   ========================================================================= */
+function sampleUpload(){ return {status:'preview', sample:true, name:'sample-loamy-soil.jpg', size:184320, w:320, h:320, url:IMG.loamy}; }
+function handleFile(f){
+  if(!f) return;
+  const ext = (f.name.split('.').pop()||'').toLowerCase();
+  const okType = ['image/jpeg','image/png'].includes(f.type) || (!f.type && ['jpg','jpeg','png'].includes(ext));
+  if(!okType){ S.upload={status:'error', kind:'type', name:f.name, typeLabel:(ext||f.type||'unknown').toUpperCase()}; return render(); }
+  if(f.size > 10*1024*1024){ S.upload={status:'error', kind:'size', name:f.name, size:f.size}; return render(); }
+  const url = URL.createObjectURL(f), img = new Image();
+  img.onload = () => { S.upload={status:'preview', name:f.name, size:f.size, w:img.naturalWidth, h:img.naturalHeight, url, km:kmeansImage(img)}; render(); };
+  img.onerror = () => { URL.revokeObjectURL(url); S.upload={status:'error', kind:'unread', name:f.name}; render(); };
+  img.src = url;
+}
+function kmeansImage(img){
+  const c=document.createElement('canvas'); c.width=c.height=150; const x=c.getContext('2d',{willReadFrequently:true});
+  x.drawImage(img,0,0,150,150); const d=x.getImageData(0,0,150,150).data; const px=[];
+  for(let i=0;i<d.length;i+=4) px.push([d[i],d[i+1],d[i+2]]);
+  const d2=(a,b)=>(a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2, k=5;
+  let cent=[px[0].slice()];
+  while(cent.length<k){ let best=-1,bp=px[0]; for(let i=0;i<px.length;i+=37){ let m=Infinity; for(const q of cent) m=Math.min(m,d2(px[i],q)); if(m>best){best=m;bp=px[i];} } cent.push(bp.slice()); }
+  const lab=new Uint8Array(px.length);
+  for(let it=0;it<10;it++){
+    for(let i=0;i<px.length;i++){ let b=0,bd=Infinity; for(let j=0;j<k;j++){ const v=d2(px[i],cent[j]); if(v<bd){bd=v;b=j;} } lab[i]=b; }
+    const s=Array.from({length:k},()=>[0,0,0,0]);
+    for(let i=0;i<px.length;i++){ const t=s[lab[i]]; t[0]+=px[i][0]; t[1]+=px[i][1]; t[2]+=px[i][2]; t[3]++; }
+    cent = s.map((t,j)=>t[3]?[t[0]/t[3],t[1]/t[3],t[2]/t[3]]:cent[j]);
+  }
+  const cnt=new Array(k).fill(0); lab.forEach(l=>cnt[l]++);
+  const order=[...Array(k).keys()].sort((a,b)=>cnt[b]-cnt[a]);
+  return {colors:order.map(j=>cent[j].map(Math.round)), pcts:order.map(j=>Math.round(cnt[j]/px.length*100))};
+}
+
+/* =========================================================================
+   Router
+   ========================================================================= */
+function navKey(r){ return ({home:'home',analyze:'analyze',check:'analyze',gate:'analyze',result:'analyze',history:'history',method:'method',roadmap:'roadmap',system:'method'})[r]||'home'; }
+function render(){
+  const parts = location.hash.replace(/^#\/?/,'').split('/').filter(Boolean);
+  const r = parts[0]||'home';
+  let html;
+  switch(r){
+    case 'analyze': html=vAnalyze(); break;
+    case 'check': html=vCheck(); break;
+    case 'gate': html=vGate(parts[1]||'passed'); break;
+    case 'result': html=vResult(); break;
+    case 'history': html=vHistory(parts[1]); break;
+    case 'method': html=vMethod(); break;
+    case 'roadmap': html=vRoadmap(); break;
+    case 'system': html=vSystem(); break;
+    default: html=vHome();
+  }
+  view.innerHTML = html;
+  const nk = navKey(r);
+  document.querySelectorAll('[data-nav]').forEach(a=>{ const on=a.dataset.nav===nk || (a.closest('.bnav')&&nk==='roadmap'&&a.dataset.nav==='method'); on?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'); });
+  if(location.hash!==S.lastRoute){ frame.scrollTo({top:0,behavior:'instant'}); S.lastRoute=location.hash; }
+  document.getElementById('net').innerHTML = S.online ? `${icon('wifi')}Online` : `${icon('wifioff')}Offline`;
+  document.getElementById('net').className = 'net '+(S.online?'on':'off');
+  document.getElementById('net').setAttribute('aria-label', S.online?'Server connected':'Offline mode: analysis runs on this device');
+  const nextTheme = {light:'dark',dark:'sun',sun:'light'}[S.theme];
+  document.getElementById('theme-btn').innerHTML = icon({light:'moon',dark:'contrast',sun:'sun'}[S.theme]);
+  document.getElementById('theme-btn').setAttribute('aria-label', `Display: ${{light:'Light',dark:'Dark',sun:'Sunlight'}[S.theme]}. Switch to ${{light:'Light',dark:'Dark',sun:'Sunlight'}[nextTheme]}`);
+  if(r==='check') runCheck(); else S.run++;
+  const drop = document.getElementById('drop');
+  if(drop){
+    drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over');});
+    drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+    drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');handleFile(e.dataTransfer.files[0]);});
+  }
+  syncControls();
+}
+const bnavDef=[['home','home','Home'],['analyze','camera','Analyze'],['history','clock','History'],['method','book','About']];
+document.querySelectorAll('.bnav a').forEach((a,i)=>a.innerHTML=icon(bnavDef[i][1])+bnavDef[i][2]);
+
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-action]'); if(!t) return;
+  const a = t.dataset.action;
+  if(a==='sample'){ S.upload=sampleUpload(); location.hash='#/check'; if(location.hash==='#/check') render(); }
+  else if(a==='pick') document.getElementById('file-pick').click();
+  else if(a==='camera') document.getElementById('file-cam').click();
+  else if(a==='run'){ location.hash='#/check'; }
+  else if(a==='retake'||a==='new'){ e.preventDefault(); S.upload={status:'idle'}; location.hash='#/analyze'; render(); }
+  else if(a==='retry'){ S.online=true; render(); }
+  else if(a==='theme'){ S.theme={light:'dark',dark:'sun',sun:'light'}[S.theme]; app.dataset.theme=S.theme; render(); }
+});
+['file-pick','file-cam'].forEach(id=>document.getElementById(id).addEventListener('change',e=>{ handleFile(e.target.files[0]); e.target.value=''; if(!location.hash.startsWith('#/analyze')) location.hash='#/analyze'; }));
+window.addEventListener('hashchange', render);
+
+/* =========================================================================
+   Prototype controls
+   ========================================================================= */
+const pc = id => document.getElementById(id);
+function syncControls(){ pc('pc-theme').value=S.theme; pc('pc-net').value=S.online?'on':'off'; pc('pc-outcome').value=S.outcome; pc('pc-frame').value=S.frame; }
+pc('pc-theme').onchange = e=>{ S.theme=e.target.value; app.dataset.theme=S.theme; render(); };
+pc('pc-net').onchange = e=>{ S.online=e.target.value==='on'; render(); };
+pc('pc-outcome').onchange = e=>{ S.outcome=e.target.value; };
+pc('pc-frame').onchange = e=>{ S.frame=e.target.value; applyFrame(); };
+function applyFrame(){ frame.classList.toggle('desk', S.frame==='desk'); frame.style.setProperty('--fw', S.frame==='desk'?'':S.frame+'px'); if(S.frame==='desk') frame.style.removeProperty('--fw'); }
+pc('pc-screen').onchange = e=>{
+  const v=e.target.value; e.target.value=''; S.histEmpty=false;
+  const go=h=>{ if(location.hash===h) render(); else location.hash=h; };
+  switch(v){
+    case 'home': go('#/'); break;
+    case 'an-empty': S.upload={status:'idle'}; go('#/analyze'); break;
+    case 'an-preview': S.upload={...sampleUpload(), sample:false, name:'field-plot-3.jpg', size:2516582, w:1024, h:768, km:SAMPLES.loamy}; go('#/analyze'); break;
+    case 'an-type': S.upload={status:'error',kind:'type',name:'IMG_2041.HEIC',typeLabel:'HEIC'}; go('#/analyze'); break;
+    case 'an-size': S.upload={status:'error',kind:'size',name:'DSC_0042.jpg',size:14889779}; go('#/analyze'); break;
+    case 'an-unread': S.upload={status:'error',kind:'unread',name:'soil-photo.png'}; go('#/analyze'); break;
+    case 'check': S.upload=sampleUpload(); go('#/check'); break;
+    case 'gate-rej': S.lastGate={kind:'rejected',img:IMG.sky}; go('#/gate/rejected'); break;
+    case 'gate-unc': S.lastGate={kind:'uncertain',img:IMG.dim}; go('#/gate/uncertain'); break;
+    case 'gate-high': S.current=A1; S.lastGate={kind:'high',a:A1}; go('#/gate/passed'); break;
+    case 'gate-med': { const m=makeAnalysis({id:'a-med', date:new Date(2026,9,11,10,5), ...SAMPLES.loamy, gateKind:'medium', img:IMG.loamy, source:'server'}); S.current=m; S.lastGate={kind:'medium',a:m}; go('#/gate/passed'); break; }
+    case 'res-high': S.current=A1; go('#/result'); break;
+    case 'res-empty': S.current=A2; go('#/result'); break;
+    case 'hist': go('#/history'); break;
+    case 'hist-empty': S.histEmpty=true; go('#/history'); break;
+    case 'hist-detail': go('#/history/a-1004'); break;
+    case 'method': go('#/method'); break;
+    case 'roadmap': go('#/roadmap'); break;
+    case 'system': go('#/system'); break;
+  }
+};
+applyFrame();
+render();
+</script>
+</body>
+</html>
