@@ -1,5 +1,5 @@
 # ADR-SAWA-002
-# SAWA Architecture Decision Records — Batch 2: from blueprint to product (ADR-009 … ADR-020)
+# SAWA Architecture Decision Records — Batch 2: from blueprint to product (ADR-009 … ADR-021)
 
 ---
 
@@ -285,3 +285,36 @@ VAL-SAWA-001 (study ID, n, date, data hash). Literature numbers may be quoted
 only as "published studies elsewhere report …", never as SAWA's performance.
 
 **Status.** Decided.
+
+---
+
+## ADR-021 — A vision-language model (e.g. Gemini) may observe and explain, never measure
+
+**Context.** The June 2026 research backbone
+(`docs/archive/SAWA-Research-Backbone-2026-06.md`) proposed Gemini as SAWA's
+"vision-and-language brain": image understanding, structured observations,
+explanations. It also drew the right boundary — AI should not be used alone for
+soil chemistry claims or fertiliser prescriptions. This corpus had not yet
+decided what role, if any, a vision-language model (VLM) plays.
+
+**Decision.** A VLM is allowed in three roles, each with a structured-output
+contract and a deterministic check:
+1. **Observation** — qualitative, visible facts: "is this soil?", stones,
+   residue, cracks, standing water, crust, roots, visible salt. Output is a
+   fixed JSON schema of booleans and enums, never free numbers. It may feed the
+   quality gate (M-1) as an extra signal.
+2. **Triage** — "what extra evidence would help" (e.g. "retake with the grey
+   card", "enter your Soil Health Card").
+3. **Phrasing** — Hindi/English wording of results produced by C-1/C-2/M-x,
+   under AI-SAWA-001 §6 (numbers inserted after generation; output checked for
+   digits the template didn't supply).
+
+A VLM may **not** produce N, P, K, pH, OC, EC values, ratings, crop suitability
+or doses. **Cost and reach:** it needs a network connection and costs money per
+call, so every flow must still work without it (SP-013); calls go through the
+server, never with an API key in the client; images are sent only with consent.
+
+**Would be wrong if.** A VAL study shows VLM observations add nothing to the
+pixel-statistics gate (M-1) — then drop it from the gate and keep only phrasing.
+
+**Status.** Proposed.
