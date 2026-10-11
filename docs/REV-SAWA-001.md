@@ -60,6 +60,7 @@ Four SAWA copies existed on the laptop. Compared file by file:
 | F-13 | Empty-state copy claimed "the model keeps improving" | Low | **Fixed** in #12 |
 | F-14 | FAQ says the heuristic is "built on colour-to-property correlations from soil science literature" — true only for darkness → organic carbon | Low | PUB-SAWA-001 P-5 |
 | F-15 | The June 2026 research backbone's citations are chat-tool markers with no resolvable sources | Info | Archived as-is; do not cite it — cite LIT-SAWA-001 |
+| F-16 | `soil-analysis-app` has a **Python virtual environment committed** (`backend/venv/…`); its "Python package" workflow lints numpy/joblib inside it and has failed since it was added on 9 Sep 2026 (on `main` too, not only on #1). One real hit in project code: `backend/server.py` unused `global client` (F824) | Low (archived repo) | Untrack `backend/venv/` and add it to `.gitignore`, or delete the template workflow — owner's call since the repo is archived |
 
 ---
 
