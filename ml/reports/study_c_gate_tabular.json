@@ -1,0 +1,141 @@
+{
+  "n": 6087,
+  "counts": [
+    {
+      "source": "cc0_material_textures",
+      "label": 0,
+      "0": 309
+    },
+    {
+      "source": "coco_eval_only",
+      "label": 0,
+      "0": 3165
+    },
+    {
+      "source": "coco_val2017",
+      "label": 0,
+      "0": 1100
+    },
+    {
+      "source": "mendeley_moisture",
+      "label": 1,
+      "0": 1177
+    },
+    {
+      "source": "zenodo_phone_soc",
+      "label": 1,
+      "0": 336
+    }
+  ],
+  "shipped_gate": {
+    "accept_rule": "verdict == ok (confidence >= 70 and no hard reject)",
+    "overall": {
+      "soil_accepted_rate": 1.0,
+      "non_soil_accepted_rate": 0.7814,
+      "n": 6087
+    },
+    "by_source": {
+      "cc0_material_textures": {
+        "soil_accepted_rate": null,
+        "non_soil_accepted_rate": 0.6764,
+        "n": 309
+      },
+      "coco_eval_only": {
+        "soil_accepted_rate": null,
+        "non_soil_accepted_rate": 0.7927,
+        "n": 3165
+      },
+      "coco_val2017": {
+        "soil_accepted_rate": null,
+        "non_soil_accepted_rate": 0.7782,
+        "n": 1100
+      },
+      "mendeley_moisture": {
+        "soil_accepted_rate": 1.0,
+        "non_soil_accepted_rate": null,
+        "n": 1177
+      },
+      "zenodo_phone_soc": {
+        "soil_accepted_rate": 1.0,
+        "non_soil_accepted_rate": null,
+        "n": 336
+      }
+    },
+    "not_rejected_by_source": {
+      "cc0_material_textures": {
+        "soil_accepted_rate": null,
+        "non_soil_accepted_rate": 0.8382,
+        "n": 309
+      },
+      "coco_eval_only": {
+        "soil_accepted_rate": null,
+        "non_soil_accepted_rate": 0.9011,
+        "n": 3165
+      },
+      "coco_val2017": {
+        "soil_accepted_rate": null,
+        "non_soil_accepted_rate": 0.88,
+        "n": 1100
+      },
+      "mendeley_moisture": {
+        "soil_accepted_rate": 1.0,
+        "non_soil_accepted_rate": null,
+        "n": 1177
+      },
+      "zenodo_phone_soc": {
+        "soil_accepted_rate": 1.0,
+        "non_soil_accepted_rate": null,
+        "n": 336
+      }
+    },
+    "high_confidence_non_soil": 906,
+    "auc_of_confidence": 0.9379
+  },
+  "trained_tabular_gate": {
+    "features": "61 (11 shipped-gate metrics + 50 grid statistics)",
+    "oof_auc_trainable_rows": 0.9991,
+    "threshold_keep_97pct_soil": 0.6992,
+    "overall": {
+      "soil_accepted_rate": 0.9696,
+      "non_soil_accepted_rate": 0.002,
+      "n": 6087
+    },
+    "by_source": {
+      "cc0_material_textures": {
+        "soil_accepted_rate": null,
+        "non_soil_accepted_rate": 0.0291,
+        "n": 309
+      },
+      "coco_eval_only": {
+        "soil_accepted_rate": null,
+        "non_soil_accepted_rate": 0.0,
+        "n": 3165
+      },
+      "coco_val2017": {
+        "soil_accepted_rate": null,
+        "non_soil_accepted_rate": 0.0,
+        "n": 1100
+      },
+      "mendeley_moisture": {
+        "soil_accepted_rate": 0.9694,
+        "non_soil_accepted_rate": null,
+        "n": 1177
+      },
+      "zenodo_phone_soc": {
+        "soil_accepted_rate": 0.9702,
+        "non_soil_accepted_rate": null,
+        "n": 336
+      }
+    },
+    "leave_one_soil_source_out": {
+      "mendeley_moisture": {
+        "n": 1177,
+        "soil_accepted_rate_at_threshold": 0.0229
+      },
+      "zenodo_phone_soc": {
+        "n": 336,
+        "soil_accepted_rate_at_threshold": 0.1131
+      }
+    }
+  }
+}
