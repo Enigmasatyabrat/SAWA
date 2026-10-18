@@ -212,6 +212,25 @@ export function levelOf(value: number, type: "ph" | "nitrogen" | "phosphorus" | 
   return { level: "Medium", tone: "medium" };
 }
 
+const LEVEL_RANK: Record<"low" | "medium" | "high", number> = { low: 0, medium: 1, high: 2 };
+
+/**
+ * A crop's requirement is satisfied when the soil's actual level is at
+ * least as high as what the crop needs (a "high" requirement needs a
+ * high soil level; a "low" requirement is satisfied by low/medium/high).
+ *
+ * FIX (see ADR-SAWA-001 §ADR-002): the original formula only ever
+ * evaluated the "high" branch — `req === "medium"` and `req === "low"`
+ * were OR'd in unconditionally, so those two cases always passed
+ * regardless of the soil's real level. That meant N/P/K barely filtered
+ * anything; only pH did real work. This version actually checks the
+ * requirement against the measured level, matching what the UI has
+ * always implied it does.
+ */
+function levelMeets(actual: "low" | "medium" | "high", required: "low" | "medium" | "high"): boolean {
+  return LEVEL_RANK[actual] >= LEVEL_RANK[required];
+}
+
 export function recommendCrops(n: Nutrients): string[] {
   const nLevel = n.nitrogen > 80 ? "high" : n.nitrogen > 40 ? "medium" : "low";
   const pLevel = n.phosphorus > 60 ? "high" : n.phosphorus > 30 ? "medium" : "low";
@@ -220,9 +239,9 @@ export function recommendCrops(n: Nutrients): string[] {
   for (const crop in CROP_DATABASE) {
     const req = CROP_DATABASE[crop];
     const phOk = n.ph >= req.ph[0] && n.ph <= req.ph[1];
-    const nOk = (req.n === "high" && (nLevel === "high" || nLevel === "medium")) || req.n === "medium" || req.n === "low";
-    const pOk = (req.p === "high" && (pLevel === "high" || pLevel === "medium")) || req.p === "medium" || req.p === "low";
-    const kOk = (req.k === "high" && (kLevel === "high" || kLevel === "medium")) || req.k === "medium" || req.k === "low";
+    const nOk = levelMeets(nLevel, req.n);
+    const pOk = levelMeets(pLevel, req.p);
+    const kOk = levelMeets(kLevel, req.k);
     if (phOk && nOk && pOk && kOk) suitable.push(crop);
   }
   return suitable.slice(0, 8);

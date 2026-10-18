@@ -60,6 +60,10 @@ export default function HeroVisual() {
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf = 0;
+    // Cached canvas size — set once on start(), refreshed only by onResize().
+    // See the FIX note in start() for why this isn't recomputed every frame.
+    let w = 0;
+    let h = 0;
 
     const img = new Image();
     img.onload = () => {
@@ -117,10 +121,16 @@ export default function HeroVisual() {
       let phaseIndex = reduceMotion ? 2 : 0;
       let phaseStart = 0;
 
+      // FIX (see ADR-SAWA-001 §ADR-007): sizeCanvas() calls getBoundingClientRect()
+      // and resizes the <canvas> bitmap — both force a layout reflow. This used to
+      // run on every requestAnimationFrame tick (~60/sec). It only actually needs
+      // to run once up front and again on resize, so w/h (declared in the outer
+      // effect scope) are set here once and refreshed by onResize() instead.
+      ({ w, h } = sizeCanvas());
+
       function render(now: number) {
         const canvas = canvasRef.current;
         if (!canvas) return;
-        const { w, h } = sizeCanvas();
         const ctx = canvas.getContext("2d")!;
         if (!phaseStart) phaseStart = now;
 
@@ -184,7 +194,11 @@ export default function HeroVisual() {
       raf = requestAnimationFrame(render);
     }
 
-    const onResize = () => sizeCanvas();
+    const onResize = () => {
+      const size = sizeCanvas();
+      w = size.w;
+      h = size.h;
+    };
     window.addEventListener("resize", onResize, { passive: true });
     return () => {
       cancelAnimationFrame(raf);

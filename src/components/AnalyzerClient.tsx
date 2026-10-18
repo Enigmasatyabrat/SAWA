@@ -754,9 +754,10 @@ export default function AnalyzerClient() {
                   </div>
                 ) : (
                   <p className="text-sm text-ink-soft">
-                    No strong matches in the 15-crop database for this exact
-                    profile — real edge cases like this are part of why the
-                    model keeps improving.
+                    No crop in the current 15-crop database fits this profile.
+                    The list is small and has no crops rated for low
+                    phosphorus or low potassium yet — a gap in the list, not a
+                    verdict on your soil.
                   </p>
                 )}
               </div>
