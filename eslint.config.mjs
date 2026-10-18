@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // ml/ is a Python workspace: its virtualenv and datasets contain third-party JS.
+    "ml/.venv/**",
+    "ml/data/**",
   ]),
 ]);
 
