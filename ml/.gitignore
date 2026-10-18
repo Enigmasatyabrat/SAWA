@@ -1,0 +1,12 @@
+# Datasets are downloaded by the scripts and never committed (licences require
+# attribution, and the files are GBs). See ml/README.md for sources.
+data/raw/
+data/processed/
+.venv/
+logs/
+__pycache__/
+*.pyc
+# Model binaries stay local: no trained model here is fit to ship (see reports/FINDINGS.md)
+artefacts/*.pt
+artefacts/*.onnx
+artefacts/checkpoints/

@@ -1,0 +1,51 @@
+{
+  "model": "MobileNetV3-Small (torchvision ImageNet1K_V1), fine-tuned, 224x224 squashed input",
+  "oof_auc_trainable_rows": 0.9995,
+  "threshold_keep_97pct_soil": 0.997,
+  "oof_at_threshold": {
+    "soil_accepted_rate": 0.9696,
+    "non_soil_accepted_rate": 0.0004
+  },
+  "oof_by_source": {
+    "cc0_material_textures": {
+      "soil_accepted_rate": null,
+      "non_soil_accepted_rate": 0.0065
+    },
+    "coco_eval_only": {
+      "soil_accepted_rate": null,
+      "non_soil_accepted_rate": 0.0
+    },
+    "coco_val2017": {
+      "soil_accepted_rate": null,
+      "non_soil_accepted_rate": 0.0
+    },
+    "mendeley_moisture": {
+      "soil_accepted_rate": 0.9813,
+      "non_soil_accepted_rate": null
+    },
+    "zenodo_phone_soc": {
+      "soil_accepted_rate": 0.9286,
+      "non_soil_accepted_rate": null
+    }
+  },
+  "leave_one_soil_source_out": {
+    "mendeley_moisture": {
+      "n": 1177,
+      "soil_accepted_rate_at_threshold": 0.0,
+      "median_prob": 0.4267
+    },
+    "zenodo_phone_soc": {
+      "n": 336,
+      "soil_accepted_rate_at_threshold": 0.0,
+      "median_prob": 0.0004
+    }
+  },
+  "onnx": {
+    "path": "artefacts\\sawa_gate_mnv3s.onnx",
+    "bytes": 6382525,
+    "input": "float32 [N,3,224,224], RGB, ImageNet mean/std normalised, image squashed to 224x224",
+    "output": "logit; probability = sigmoid(logit)",
+    "threshold": 0.997,
+    "max_abs_logit_diff_vs_torch": 6.67572021484375e-06
+  }
+}

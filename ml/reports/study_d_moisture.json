@@ -1,0 +1,173 @@
+{
+  "n": 1177,
+  "class_counts": {
+    "Wet": 406,
+    "Dry": 387,
+    "Moderate": 384
+  },
+  "sessions": [
+    [
+      "mendeley/IMG-s1",
+      "Wet",
+      1
+    ],
+    [
+      "mendeley/IMG-s2",
+      "Wet",
+      4
+    ],
+    [
+      "mendeley/PXL-s1",
+      "Wet",
+      3
+    ],
+    [
+      "mendeley/PXL-s2",
+      "Wet",
+      3
+    ],
+    [
+      "mendeley/PXL-s3",
+      "Wet",
+      4
+    ],
+    [
+      "mendeley/SONY-s1",
+      "Wet",
+      124
+    ],
+    [
+      "mendeley/SONY-s2",
+      "Wet",
+      137
+    ],
+    [
+      "mendeley/SONY-s3",
+      "Wet",
+      130
+    ],
+    [
+      "mendeley/SONY-s4",
+      "Moderate",
+      135
+    ],
+    [
+      "mendeley/SONY-s5",
+      "Moderate",
+      129
+    ],
+    [
+      "mendeley/SONY-s6",
+      "Moderate",
+      120
+    ],
+    [
+      "mendeley/SONY-s7",
+      "Dry",
+      176
+    ],
+    [
+      "mendeley/SONY-s8",
+      "Dry",
+      93
+    ],
+    [
+      "mendeley/SONY-s9",
+      "Dry",
+      118
+    ]
+  ],
+  "majority_baseline_accuracy": 0.3449,
+  "naive_photo_split": {
+    "tabular_lightgbm": {
+      "accuracy": 0.9354,
+      "balanced_accuracy": 0.936,
+      "macro_f1": 0.9358,
+      "confusion_rows_true_DryModWet": [
+        [
+          374,
+          11,
+          2
+        ],
+        [
+          7,
+          361,
+          16
+        ],
+        [
+          1,
+          39,
+          366
+        ]
+      ]
+    },
+    "cnn_mobilenetv3s": {
+      "accuracy": 0.8547,
+      "balanced_accuracy": 0.8551,
+      "macro_f1": 0.8555,
+      "confusion_rows_true_DryModWet": [
+        [
+          344,
+          40,
+          3
+        ],
+        [
+          27,
+          325,
+          32
+        ],
+        [
+          11,
+          58,
+          337
+        ]
+      ]
+    }
+  },
+  "held_out_sessions": {
+    "tabular_lightgbm": {
+      "accuracy": 0.7519,
+      "balanced_accuracy": 0.7522,
+      "macro_f1": 0.7531,
+      "confusion_rows_true_DryModWet": [
+        [
+          322,
+          54,
+          11
+        ],
+        [
+          21,
+          269,
+          94
+        ],
+        [
+          31,
+          81,
+          294
+        ]
+      ]
+    },
+    "cnn_mobilenetv3s": {
+      "accuracy": 0.5896,
+      "balanced_accuracy": 0.5883,
+      "macro_f1": 0.5954,
+      "confusion_rows_true_DryModWet": [
+        [
+          249,
+          137,
+          1
+        ],
+        [
+          138,
+          181,
+          65
+        ],
+        [
+          12,
+          130,
+          264
+        ]
+      ]
+    }
+  }
+}
