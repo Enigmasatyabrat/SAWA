@@ -78,3 +78,5 @@ backup-*
 # Claude Code — share the dev-server config, keep personal/local settings out
 .claude/*
 !.claude/launch.json
+
+.taste-skill/

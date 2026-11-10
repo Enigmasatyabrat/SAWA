@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { ArrowLeft, CheckCircle2, Compass, Microscope, Sprout } from "lucide-react";
 import Link from "next/link";
 import { Reveal, Stagger, StaggerItem } from "@/components/Reveal";
 import { Eyebrow, CTABanner } from "@/components/ui";
+
+export const metadata: Metadata = {
+  title: "Roadmap",
+  description:
+    "What SAWA does today and what comes next: lab-paired soil data, calibrated colour, Soil Health Card input and better photo checks, told honestly.",
+  alternates: { canonical: "/roadmap" },
+  openGraph: { title: "Roadmap | SAWA", url: "/roadmap" },
+};
+
 
 const SHIPPED = [
   {
@@ -79,7 +89,7 @@ export default function RoadmapPage() {
                 <CheckCircle2 size={20} />
               </span>
               <div>
-                <p className="font-mono text-xs uppercase tracking-wider text-ink-faint">Shipped</p>
+                <p className="text-sm font-semibold text-ink-faint">Shipped</p>
                 <h2 className="font-serif text-2xl font-semibold text-ink">Already live in the analyzer</h2>
               </div>
             </div>
@@ -102,7 +112,7 @@ export default function RoadmapPage() {
                   <g.icon size={20} />
                 </span>
                 <div>
-                  <p className="font-mono text-xs uppercase tracking-wider text-ink-faint">{g.tag}</p>
+                  <p className="text-sm font-semibold text-ink-faint">{g.tag}</p>
                   <h2 className="font-serif text-2xl font-semibold text-ink">{g.title}</h2>
                 </div>
               </div>

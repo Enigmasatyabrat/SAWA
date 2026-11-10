@@ -33,7 +33,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-mono text-xs font-medium uppercase tracking-wider text-ink-faint">
+            <h4 className="text-sm font-semibold text-ink">
               Site
             </h4>
             <ul className="mt-4 flex flex-col gap-2.5">
@@ -51,7 +51,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-mono text-xs font-medium uppercase tracking-wider text-ink-faint">
+            <h4 className="text-sm font-semibold text-ink">
               Connect
             </h4>
             <ul className="mt-4 flex flex-col gap-2.5">
@@ -87,7 +87,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col gap-2 border-t border-line pt-6 font-mono text-xs text-ink-faint sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-2 border-t border-line pt-6 text-sm text-ink-soft sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; {new Date().getFullYear()} SAWA — Soil Analysis Web App. Designed &amp; engineered by Satyabrat Mishra.</p>
           <p>Site built as a project showcase — not the app itself.</p>
         </div>

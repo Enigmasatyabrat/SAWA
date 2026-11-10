@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import { ArrowLeft, ArrowUpRight, Mail } from "lucide-react";
 import Link from "next/link";
 import { Reveal, Stagger, StaggerItem } from "@/components/Reveal";
 import { Eyebrow, CTABanner } from "@/components/ui";
 import { GithubIcon, LinkedinIcon } from "@/components/BrandIcons";
+
+export const metadata: Metadata = {
+  title: "Contact",
+  description:
+    "Get in touch about SAWA: feedback on the soil analyzer, questions about the build, collaboration or data partnerships with soil labs.",
+  alternates: { canonical: "/contact" },
+  openGraph: { title: "Contact | SAWA", url: "/contact" },
+};
+
 
 const CONTACT_CARDS = [
   { icon: Mail, label: "Email", value: "satyabratmmishra@gmail.com", href: "mailto:satyabratmmishra@gmail.com" },
