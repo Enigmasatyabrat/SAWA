@@ -81,7 +81,7 @@ function LevelBadge({ tone, level }: { tone: string; level: string }) {
     neutral: "bg-forest/10 text-forest-deep",
   };
   return (
-    <span className={`inline-block rounded-full px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wide ${classes[tone]}`}>
+    <span className={`inline-block rounded-full px-2.5 py-0.5 text-sm font-semibold ${classes[tone]}`}>
       {level}
     </span>
   );
@@ -182,7 +182,7 @@ function GateOutcomePanel({
           <tone.Icon size={19} />
         </span>
         <div>
-          <p className={`font-mono text-xs uppercase tracking-wider ${rejected ? "text-rust" : "text-soil-text"}`}>{tone.label}</p>
+          <p className={`text-sm font-semibold ${rejected ? "text-rust" : "text-soil-text"}`}>{tone.label}</p>
           <p className="mt-1 font-serif text-lg font-semibold text-ink">
             {rejected ? "Not a usable soil photo" : "Confidence too low to report"}
           </p>
@@ -191,7 +191,7 @@ function GateOutcomePanel({
       <p className="text-sm leading-relaxed text-ink-soft">{report.primaryReason}</p>
       <StatusBlock report={report} />
       <details className="group">
-        <summary className="cursor-pointer select-none font-mono text-xs uppercase tracking-wide text-ink-faint transition-colors hover:text-ink-soft">
+        <summary className="cursor-pointer select-none text-sm font-semibold text-ink-faint transition-colors hover:text-ink-soft">
           Full evidence trail
         </summary>
         <div className="mt-3 rounded-xl border border-line bg-surface p-4">
@@ -417,7 +417,7 @@ export default function AnalyzerClient() {
   return (
     <div className="rounded-3xl border border-line-strong bg-surface p-5 sm:p-8">
       <div className="max-w-xl">
-        <span className="inline-flex items-center gap-2 font-mono text-xs font-medium uppercase tracking-wider text-sprout-text">
+        <span className="inline-flex items-center gap-2 text-sm font-semibold text-sprout-text">
           <span className="h-1.5 w-1.5 rounded-full bg-sprout" /> Live analysis
         </span>
         <h3 className="mt-3 font-serif text-2xl font-semibold text-ink">Run the analysis</h3>
@@ -574,7 +574,7 @@ export default function AnalyzerClient() {
                 <XCircle size={17} />
               </span>
               <div>
-                <p className="font-mono text-xs uppercase tracking-wider text-rust">Analysis failed</p>
+                <p className="text-sm font-semibold text-rust">Analysis failed</p>
                 <p className="mt-1 text-sm leading-relaxed text-ink-soft">{error}</p>
               </div>
             </div>
@@ -619,7 +619,7 @@ export default function AnalyzerClient() {
                 )}
               </div>
               <details className="-mt-2 rounded-xl border border-line bg-bg-alt p-4">
-                <summary className="cursor-pointer select-none font-mono text-xs uppercase tracking-wide text-ink-faint transition-colors hover:text-ink-soft">
+                <summary className="cursor-pointer select-none text-sm font-semibold text-ink-faint transition-colors hover:text-ink-soft">
                   Image evidence behind that confidence score
                 </summary>
                 <div className="mt-3">
@@ -629,11 +629,11 @@ export default function AnalyzerClient() {
 
               <div className="flex items-center justify-between gap-4 rounded-2xl border border-line-strong bg-bg-alt px-5 py-4">
                 <div>
-                  <p className="font-mono text-xs uppercase tracking-wider text-ink-faint">Classified as</p>
+                  <p className="text-sm font-semibold text-ink-faint">Classified as</p>
                   <p className="font-serif text-xl font-semibold text-ink">{analyzed.result.soilType}</p>
                 </div>
                 <div>
-                  <p className="font-mono text-xs uppercase tracking-wider text-ink-faint">pH</p>
+                  <p className="text-sm font-semibold text-ink-faint">pH</p>
                   <p className="font-serif text-xl font-semibold text-ink">
                     {analyzed.result.nutrients.ph} <span className="text-sm font-normal text-ink-soft">{phInfo?.level}</span>
                   </p>
@@ -641,7 +641,7 @@ export default function AnalyzerClient() {
               </div>
 
               <details className="-mt-3 rounded-xl border border-line bg-surface p-4">
-                <summary className="flex cursor-pointer select-none items-center justify-between gap-3 font-mono text-xs uppercase tracking-wide text-ink-faint transition-colors hover:text-ink-soft">
+                <summary className="flex cursor-pointer select-none items-center justify-between gap-3 text-sm font-semibold text-ink-faint transition-colors hover:text-ink-soft">
                   <span>Why this classification</span>
                   <ConfidenceBadge
                     confidence={analyzed.soilEvidence.confidence}
@@ -678,7 +678,7 @@ export default function AnalyzerClient() {
 
               {/* colours */}
               <div>
-                <p className="mb-2 font-mono text-xs uppercase tracking-wider text-ink-faint">Dominant colours</p>
+                <p className="mb-2 text-sm font-semibold text-ink-faint">Dominant colours</p>
                 <div className="flex flex-wrap gap-3">
                   {analyzed.result.colors.map((c, i) => (
                     <div key={i} className="text-center">
@@ -696,7 +696,7 @@ export default function AnalyzerClient() {
 
               {/* NPK chart */}
               <div>
-                <p className="mb-2 font-mono text-xs uppercase tracking-wider text-ink-faint">
+                <p className="mb-2 text-sm font-semibold text-ink-faint">
                   Nitrogen · Phosphorus · Potassium (ppm)
                 </p>
                 <div className="h-[180px] w-full rounded-xl border border-line bg-bg-alt p-2">
@@ -740,7 +740,7 @@ export default function AnalyzerClient() {
 
               {/* crops */}
               <div>
-                <p className="mb-2 font-mono text-xs uppercase tracking-wider text-ink-faint">Recommended crops</p>
+                <p className="mb-2 text-sm font-semibold text-ink-faint">Recommended crops</p>
                 {analyzed.result.crops.length ? (
                   <div className="flex flex-wrap gap-2">
                     {analyzed.result.crops.map((crop) => (

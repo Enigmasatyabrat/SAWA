@@ -1,14 +1,14 @@
+// The stack the live app actually runs on (the Python research code lives in ml/).
 const ITEMS = [
+  "Next.js",
   "React",
+  "TypeScript",
   "Tailwind CSS",
-  "FastAPI",
-  "Python 3.10+",
-  "MongoDB",
-  "scikit-learn",
+  "MongoDB Atlas",
+  "Vercel",
   "K-Means Clustering",
-  "Pillow",
-  "NumPy",
-  "Docker",
+  "sharp",
+  "Python for the ML research",
 ];
 
 export default function Marquee() {

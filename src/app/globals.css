@@ -7,16 +7,16 @@
    ========================================================================== */
 :root {
   /* surfaces */
-  --color-bg: #f6f2e7;
-  --color-bg-alt: #efe8d8;
+  --color-bg: #f2f2ee;
+  --color-bg-alt: #e6e6e0;
   --color-surface: #ffffff;
-  --color-surface-sunken: #fbf9f3;
+  --color-surface-sunken: #f8f7f3;
 
   /* ink */
   --color-ink: #1f2a1c;
-  --color-ink-soft: #5b6b54;
-  --color-ink-faint: #8a9382;
-  --color-line: #e3dcc8;
+  --color-ink-soft: #3d4a37;
+  --color-ink-faint: #5e6857;
+  --color-line: #dcd8cc;
   --color-line-strong: #d6cbae;
 
   /* brand */
@@ -56,7 +56,9 @@
   --color-rust: var(--color-rust);
 
   --font-sans: "Geist", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* Mono is reserved for real code; elsewhere `font-mono` now renders the text face. */
+  --font-mono: "Geist", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-code: ui-monospace, "SFMono-Regular", Menlo, monospace;
   --font-serif: "Source Serif 4", ui-serif, Georgia, serif;
 
   --animate-marquee: marquee 34s linear infinite;

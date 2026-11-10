@@ -1,9 +1,19 @@
+import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import AnalyzerClient from "@/components/AnalyzerClient";
 import { Reveal, Stagger, StaggerItem } from "@/components/Reveal";
 import { Eyebrow, CTABanner } from "@/components/ui";
 import { CROP_DATABASE } from "@/lib/soil-engine";
+
+export const metadata: Metadata = {
+  title: "Analyze a Soil Photo",
+  description:
+    "Upload or snap a photo of soil. SAWA checks the image, extracts its five main colours, and returns a soil type, estimated nutrient bands and crop ideas.",
+  alternates: { canonical: "/analyzer" },
+  openGraph: { title: "Analyze a Soil Photo | SAWA", url: "/analyzer" },
+};
+
 
 const SOIL_TYPES = [
   { name: "Sandy Soil", desc: "Bright, warm signal — R>180, G>140, B>100. Light, well-drained.", k: "40 ppm", color: "linear-gradient(160deg, #d9c29b, #b39d76)" },
