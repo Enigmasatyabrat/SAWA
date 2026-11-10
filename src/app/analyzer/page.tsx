@@ -5,6 +5,8 @@ import AnalyzerClient from "@/components/AnalyzerClient";
 import { Reveal, Stagger, StaggerItem } from "@/components/Reveal";
 import { Eyebrow, CTABanner } from "@/components/ui";
 import { CROP_DATABASE } from "@/lib/soil-engine";
+import Photo from "@/components/Photo";
+import { PHOTOS } from "@/lib/photos";
 
 export const metadata: Metadata = {
   title: "Analyze a Soil Photo",
@@ -50,6 +52,10 @@ export default function AnalyzerPage() {
             </p>
           </div>
         </Reveal>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <Photo photo={PHOTOS.soilCloseUp} aspect="aspect-[16/9]" />
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-8">
