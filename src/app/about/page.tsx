@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Reveal, Stagger, StaggerItem } from "@/components/Reveal";
 import { Eyebrow, StatCard, CTABanner } from "@/components/ui";
 import { GithubIcon, LinkedinIcon } from "@/components/BrandIcons";
+
+export const metadata: Metadata = {
+  title: "About the Project",
+  description:
+    "SAWA is a solo student project testing whether a phone photo and applied colour science can give farmers a useful first read of their soil.",
+  alternates: { canonical: "/about" },
+  openGraph: { title: "About the Project | SAWA", url: "/about" },
+};
+
 
 const JOURNEY = [
   {
@@ -130,21 +140,21 @@ export default function AboutPage() {
           <Stagger className="mt-8 grid gap-4 sm:grid-cols-3">
             <StaggerItem>
               <div className="h-full rounded-2xl border border-line bg-surface p-6">
-                <p className="font-mono text-xs uppercase tracking-wider text-ink-faint">Guide</p>
+                <p className="text-sm font-semibold text-ink-faint">Guide</p>
                 <p className="mt-2 font-serif text-lg font-semibold text-ink">Dr. Ashutosh Kumar Rao</p>
                 <p className="mt-1 text-sm text-ink-soft">Assistant Professor, CSE</p>
               </div>
             </StaggerItem>
             <StaggerItem>
               <div className="h-full rounded-2xl border border-line bg-surface p-6">
-                <p className="font-mono text-xs uppercase tracking-wider text-ink-faint">Guide</p>
+                <p className="text-sm font-semibold text-ink-faint">Guide</p>
                 <p className="mt-2 font-serif text-lg font-semibold text-ink">Dr. Shubham Srivastava</p>
                 <p className="mt-1 text-sm text-ink-soft">Assistant Professor, CSE</p>
               </div>
             </StaggerItem>
             <StaggerItem>
               <div className="h-full rounded-2xl border border-line bg-surface p-6">
-                <p className="font-mono text-xs uppercase tracking-wider text-ink-faint">Institution</p>
+                <p className="text-sm font-semibold text-ink-faint">Institution</p>
                 <p className="mt-2 font-serif text-lg font-semibold text-ink">ITM GIDA, Gorakhpur</p>
                 <p className="mt-1 text-sm text-ink-soft">Dept. of Computer Science &amp; Engineering</p>
               </div>
