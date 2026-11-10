@@ -4,6 +4,8 @@ import HeroVisual from "@/components/HeroVisual";
 import Marquee from "@/components/Marquee";
 import { Reveal, Stagger, StaggerItem } from "@/components/Reveal";
 import { Eyebrow, StatCard, PrimaryButton, SecondaryButton, CTABanner } from "@/components/ui";
+import Photo from "@/components/Photo";
+import { PHOTOS } from "@/lib/photos";
 
 const PIPELINE = [
   {
@@ -33,7 +35,7 @@ export default function HomePage() {
       <section className="relative overflow-hidden">
         <div className="relative mx-auto grid max-w-6xl gap-14 px-6 pb-20 pt-16 sm:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pb-28 lg:pt-24">
           <div>
-            <h1 className="text-balance font-serif text-5xl font-semibold leading-[1] tracking-[-0.025em] text-ink sm:text-7xl lg:text-[4.75rem]">
+            <h1 className="text-balance font-serif text-5xl font-semibold leading-[1] tracking-[-0.025em] text-ink sm:text-6xl lg:text-[4.75rem]">
               Read your soil from a photo.
             </h1>
             <p className="mt-8 max-w-lg text-xl leading-relaxed text-ink">
@@ -59,6 +61,10 @@ export default function HomePage() {
       </section>
 
       <Marquee />
+
+      <section className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <Photo photo={PHOTOS.ploughedField} aspect="aspect-[16/9] sm:aspect-[21/9]" />
+      </section>
 
       {/* ================= WHAT SAWA DOES ================= */}
       <section className="mx-auto max-w-6xl px-6 py-20 sm:py-28">
@@ -132,6 +138,11 @@ export default function HomePage() {
         </Reveal>
       </section>
 
+      <section className="mx-auto grid max-w-6xl gap-8 px-6 pb-10 sm:grid-cols-2">
+        <Photo photo={PHOTOS.ploughingBengal} aspect="aspect-[4/3]" sizes="(min-width: 640px) 50vw, 100vw" />
+        <Photo photo={PHOTOS.soilProfilingIndia} aspect="aspect-[4/3]" sizes="(min-width: 640px) 50vw, 100vw" />
+      </section>
+
       {/* ================= VALIDATION ================= */}
       <section className="border-t border-line bg-bg-alt py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-6">
@@ -177,6 +188,10 @@ export default function HomePage() {
       </section>
 
       {/* ================= CTA ================= */}
+      <section className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <Photo photo={PHOTOS.terracedRice} aspect="aspect-[16/9] sm:aspect-[21/9]" />
+      </section>
+
       <section className="mx-auto max-w-6xl px-6 py-20 sm:py-28">
         <Reveal scale>
           <CTABanner
