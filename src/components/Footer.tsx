@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Mail } from "lucide-react";
 import { Logo } from "./Navbar";
 import { GithubIcon, LinkedinIcon } from "./BrandIcons";
+import { PHOTOS, type SitePhoto } from "@/lib/photos";
 
 const SITE_LINKS = [
   { href: "/", label: "Home" },
@@ -89,8 +90,23 @@ export default function Footer() {
 
         <div className="mt-14 flex flex-col gap-2 border-t border-line pt-6 text-sm text-ink-soft sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; {new Date().getFullYear()} SAWA — Soil Analysis Web App. Designed &amp; engineered by Satyabrat Mishra.</p>
-          <p>Site built as a project showcase — not the app itself.</p>
         </div>
+
+        <p className="mt-6 max-w-4xl text-sm leading-relaxed text-ink-soft">
+          Photographs:{" "}
+          {(Object.values(PHOTOS) as SitePhoto[]).map((p, i, all) => (
+            <span key={p.src}>
+              <a href={p.source} className="underline underline-offset-2 hover:text-forest-deep" target="_blank" rel="noopener noreferrer">
+                {p.title}
+              </a>
+              {p.author ? ` by ${p.author}` : ""},{" "}
+              <a href={p.licenceUrl} className="underline underline-offset-2 hover:text-forest-deep" target="_blank" rel="noopener noreferrer">
+                {p.licence}
+              </a>
+              {i < all.length - 1 ? "; " : "."}
+            </span>
+          ))}
+        </p>
       </div>
     </footer>
   );

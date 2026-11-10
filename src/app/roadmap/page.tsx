@@ -3,6 +3,8 @@ import { ArrowLeft, CheckCircle2, Compass, Microscope, Sprout } from "lucide-rea
 import Link from "next/link";
 import { Reveal, Stagger, StaggerItem } from "@/components/Reveal";
 import { Eyebrow, CTABanner } from "@/components/ui";
+import Photo from "@/components/Photo";
+import { PHOTOS } from "@/lib/photos";
 
 export const metadata: Metadata = {
   title: "Roadmap",
@@ -79,6 +81,10 @@ export default function RoadmapPage() {
             </p>
           </div>
         </Reveal>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <Photo photo={PHOTOS.terracedRice} aspect="aspect-[16/9] sm:aspect-[21/9]" />
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-12">
