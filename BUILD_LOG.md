@@ -93,7 +93,7 @@ actual hardcoded n_clusters=5, unverifiable UAT claims like "10 users, NPS 70").
 1. Turn 1: user uploaded `SAWA__soil-analysis-app_.zip` (full source repo), asked
    for an award-winning agency-style multi-page showcase site, dark/cinematic/glassmorphism,
    pasted a ChatGPT-authored generic spec. Built a 6-page **vanilla HTML/CSS/JS** site
-   (`/home/claude/sawa_site/`) — dark near-black/espresso palette, electric teal
+   (`/home/dev/sawa_site/`) — dark near-black/espresso palette, electric teal
    accent, Fraunces/Manrope/IBM Plex Mono, custom cursor, page-transition wipes,
    real client-side port of the algorithm (`js/soil-engine.js`), signature K-Means
    particle hero visualization, live interactive demo on showcase.html. Delivered
@@ -132,7 +132,7 @@ actual hardcoded n_clusters=5, unverifiable UAT claims like "10 users, NPS 70").
    as a data source, only as aesthetic/structural reference).
    **Decision: full rebuild in Next.js 16 (App Router) + TypeScript + Tailwind v4
    + Framer Motion + Recharts + lucide-react**, static export (`output:'export'`),
-   at `/home/claude/sawa-next/`. Ported the ALREADY-UNIT-TESTED soil-engine.js
+   at `/home/dev/sawa-next/`. Ported the ALREADY-UNIT-TESTED soil-engine.js
    logic to `src/lib/soil-engine.ts` (same algorithm, same thresholds — see §1).
    Palette contrast-checked before committing (same rigor as turn 2's CSS fix):
    `ink-faint` and `sprout`/`soil` decorative tones got separate *-text variants
@@ -140,7 +140,7 @@ actual hardcoded n_clusters=5, unverifiable UAT claims like "10 users, NPS 70").
 
 ---
 
-## 3. CURRENT BUILD STATE (Next.js app at /home/claude/sawa-next)
+## 3. CURRENT BUILD STATE (Next.js app at /home/dev/sawa-next)
 
 **Pages (App Router, all 6 real routes):** `/` `/about` `/technology` `/analyzer`
 `/roadmap` `/contact`. All present, all pass `next build` (static export) and
