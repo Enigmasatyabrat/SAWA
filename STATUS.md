@@ -23,7 +23,7 @@ or stubbed; change them only deliberately, with evidence.
 
 ## What changed since Phase 0 (`4c0dc8b`, 19 Aug 2026)
 
-`4c0dc8b` removed an empty `CLAUDE.md` and is the last commit of the Phase 0
+`4c0dc8b` removed an empty agent notes file and is the last commit of the Phase 0
 consolidation. Since then, on `main`:
 
 1. `c1bc663` (21 Aug): **Phase 1A** photo collection pipeline (toolkit and scripts).
@@ -87,8 +87,8 @@ Known limitations still open (from `RELEASES.md` and the studies):
 | `SAWA-validation-gate-update\SAWA-static-build` | A static export of the site | Build output |
 | `SAWA-validation-gate-update\screenshots` | App screenshots | Local only |
 | `SAWA (soil-analysis-app)` | `Enigmasatyabrat/soil-analysis-app` (private): the old **Plan A**, React frontend plus FastAPI backend | Archived reference, fully pushed (`archive/v1-consolidation`). Its backend has a committed virtualenv (F-16) |
-| `files (4)` | Notes (`CLAUDE.md`, `memory.md`, `PROMPTS.md`, `ADR-SAWA-001.md`, `SAWA-REC-INDEX.md`) and a `SAWA-v1.0` snapshot | About 12 files here are in no repo (for example `ADR-SAWA-001.md`, `BUILD_LOG.md`, `AnalyzerClient.tsx`, the roadmap and technology pages). Review before deleting |
-| `.claude` | Local Claude settings | Local only |
+| `files (4)` | Notes (`AGENTS.md`, `memory.md`, `PROMPTS.md`, `ADR-SAWA-001.md`, `SAWA-REC-INDEX.md`) and a `SAWA-v1.0` snapshot | About 12 files here are in no repo (for example `ADR-SAWA-001.md`, `BUILD_LOG.md`, `AnalyzerClient.tsx`, the roadmap and technology pages). Review before deleting |
+| local assistant settings folder | Local settings | Local only |
 
 Other copies elsewhere on the laptop: `D:\SAWA-gh` is an older clone of this
 repo with nothing unpushed. `C:\Users\SATYABRAT MISHRA\soil-analysis-app` is an
@@ -96,7 +96,7 @@ old copy of the Plan A repo whose 2.8 GB is untracked GoPro clips.
 
 ## Working rules carried over from the project notes
 
-From `files (4)/CLAUDE.md` and `memory.md` (last updated 17 Aug, so older than this file):
+From `files (4)/AGENTS.md` (the agent notes) and `memory.md` (last updated 17 Aug, so older than this file):
 
 - Describe the nutrient numbers honestly: a hand-tuned heuristic, never "ML", "AI prediction" or "trained".
 - The K-Means colour extraction is real unsupervised clustering and can be described as such.
