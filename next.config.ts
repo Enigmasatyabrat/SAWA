@@ -13,6 +13,16 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  // sharp loads libvips (a .so) through a native rpath that file tracing cannot
+  // follow, so on Vercel the analyze-soil function shipped without it and every
+  // request failed with "libvips-cpp.so.8.18.3: cannot open shared object file".
+  // Ship the Linux binaries with that function explicitly.
+  outputFileTracingIncludes: {
+    "/api/analyze-soil": [
+      "./node_modules/@img/sharp-linux-x64/**/*",
+      "./node_modules/@img/sharp-libvips-linux-x64/**/*",
+    ],
+  },
 };
 
 export default nextConfig;
