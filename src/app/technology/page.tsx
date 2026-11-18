@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Reveal, Stagger, StaggerItem } from "@/components/Reveal";
 import { Eyebrow, CTABanner } from "@/components/ui";
+
+export const metadata: Metadata = {
+  title: "How It Works",
+  description:
+    "How SAWA turns a soil photo into a result: the validation gate, K-Means colour extraction, rule-based soil typing, nutrient estimates and their real limits.",
+  alternates: { canonical: "/technology" },
+  openGraph: { title: "How It Works | SAWA", url: "/technology" },
+};
+
 
 const PIPELINE = [
   { n: "01", title: "Capture", body: "You take or choose a photo of soil — a patch of ground, a handful, a core sample. JPEG or PNG, any reasonable size." },
@@ -30,7 +40,7 @@ const STACK = [
 function ArchNode({ tag, title, body }: { tag: string; title: string; body: string }) {
   return (
     <div className="flex-1 rounded-2xl border border-line-strong bg-surface p-6 text-center">
-      <p className="font-mono text-xs uppercase tracking-wider text-forest-deep">{tag}</p>
+      <p className="text-sm font-semibold text-forest-deep">{tag}</p>
       <p className="mt-2 font-serif text-lg font-semibold text-ink">{title}</p>
       <p className="mt-1.5 text-sm text-ink-soft">{body}</p>
     </div>
@@ -70,7 +80,7 @@ export default function TechnologyPage() {
               <ShieldCheck size={19} />
             </span>
             <div>
-              <p className="font-mono text-xs uppercase tracking-wider text-forest-deep">
+              <p className="text-sm font-semibold text-forest-deep">
                 Client-side addition &middot; not part of backend/server.py
               </p>
               <h3 className="mt-1.5 font-serif text-xl font-semibold text-ink">
