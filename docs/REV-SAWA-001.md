@@ -113,7 +113,7 @@ under `D:\New folder (2)\`.
 | Local path | Now on GitHub at | Action |
 |---|---|---|
 | `SAWA-------ALL\SAWA-validation-gate-update\SAWA-nextjs-source` | `Enigmasatyabrat/SAWA` | **Keep** — the active working clone |
-| ↳ `h origin maingit rm AGENTS.md` (empty file from a mistyped command) | — | Delete |
+| ↳ `h origin maingit rm <notes file>` (empty file from a mistyped command) | — | Delete |
 | `SAWA-------ALL\SAWA-validation-gate-update\SAWA-static-build` | regenerable build output | Delete |
 | `SAWA-------ALL\SAWA-validation-gate-update\IMPROVEMENTS.md`, `VALIDATION_SYSTEM_PROMPT.md` | identical copies already in SAWA root | Delete |
 | `SAWA-------ALL\SAWA-validation-gate-update\screenshots` | soil-analysis-app#1 `archive/screenshots/validation-gate/` | Delete after #1 merges |
