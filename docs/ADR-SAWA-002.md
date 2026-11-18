@@ -276,7 +276,7 @@ feedback and to avoid uploading unusable images.
 
 ## ADR-020 — No claimed accuracy anywhere until its validation study passes
 
-**Context.** SP-001/002 and the v1.0 CLAUDE.md non-negotiable #1, restated
+**Context.** SP-001/002 and the v1.0 AGENTS.md non-negotiable #1, restated
 because v3 introduces real models where the temptation to quote a number will
 be real.
 

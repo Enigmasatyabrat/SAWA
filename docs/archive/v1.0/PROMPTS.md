@@ -1,11 +1,11 @@
-# PROMPTS.md — ready-to-paste prompts for Claude Code
+# PROMPTS.md — ready-to-paste prompts for an AI coding agent
 
 Copy these verbatim when you start each piece of work. They're written to
 front-load context so you don't spend the first ten messages re-explaining
 the project.
 
-Every prompt assumes `CLAUDE.md` and `memory.md` are in the repo root, so
-Claude Code picks them up automatically. If you're in a plain chat instead,
+Every prompt assumes `AGENTS.md` and `memory.md` are in the repo root, so
+the coding agent picks them up automatically. If you're in a plain chat instead,
 paste `memory.md` first.
 
 ---
@@ -13,7 +13,7 @@ paste `memory.md` first.
 ## 0. Session opener (use this every time)
 
 ```
-Read CLAUDE.md and memory.md first, then tell me:
+Read AGENTS.md and memory.md first, then tell me:
 1. What you understand the current state of the project to be
 2. What memory.md says the next action is
 3. Anything in those files that looks stale or contradictory

@@ -11,7 +11,7 @@ It is designed to answer four questions:
 3. Where do AI and ML belong in the system?
 4. What new things can be added that are not already in the simple Gemini-based version?
 
-This file is also a prompt blueprint. It can be uploaded into ChatGPT, Claude, or another strong model to generate a full research paper, product specification, or implementation plan.
+This file is also a prompt blueprint. It can be uploaded into ChatGPT or another strong model to generate a full research paper, product specification, or implementation plan.
 
 ---
 
@@ -384,7 +384,7 @@ That is both more honest and more defensible.
 
 ## 16) Master prompt for generating the full research paper
 
-Copy this into ChatGPT, Claude, or another strong model:
+Copy this into ChatGPT or another strong model:
 
 > You are a senior research writer, system architect, and academic reviewer.  
 > Write a full research-paper-style document for the project SAWA, a hybrid AI-assisted soil image interpretation and crop support system.  

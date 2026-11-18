@@ -18,7 +18,7 @@
 ## 1. Rules
 
 1. Say what the system does, not what it hopes to do. ("Estimated from colour,
-   not a lab test" beats "AI-powered soil intelligence" — v1.0 CLAUDE.md.)
+   not a lab test" beats "AI-powered soil intelligence" — v1.0 AGENTS.md.)
 2. No accuracy number without a passed VAL study ID (ADR-020).
 3. Literature numbers only as "published studies elsewhere report …".
 4. Name sources for agronomy (SP-004): "ICAR STCR equation, RAU Pusa".

@@ -44,7 +44,7 @@ current phase, do the next unchecked item.
 | **ADR-SAWA-001** | Architecture Decision Records, batch 1 | **WRITTEN** | Every real decision made so far, justified |
 | **LEARNING-PATHWAY-PHASE2** | Learning pathway for Phase 2+ | **WRITTEN** | What to learn next (git, real ML, CV), assumes `LEARNING_GUIDE.md` already covers the current stack |
 | **GIT-GUIDE** | Version control setup + workflow | **WRITTEN** | Practical, not theoretical — exact commands for this project |
-| **CLAUDE.md** | AI session instructions (repo root) | **WRITTEN** | Ground truth + non-negotiables for any Claude Code / chat session on this repo |
+| **AGENTS.md** | AI session instructions (repo root) | **WRITTEN** | Ground truth + non-negotiables for any coding agent or chat session on this repo |
 | **PROMPTS** | Copy-paste prompts per phase | **WRITTEN** | Session opener, per-phase prompts, bug-fix and end-of-session prompts |
 | **README.md** | Repo orientation (root) | **WRITTEN** | What SAWA does, honest limitations, layout, how to run |
 | **SAWA-Roadmap.docx** | Phased roadmap, printable | **WRITTEN** | The actual plan, in order, with checkboxes |

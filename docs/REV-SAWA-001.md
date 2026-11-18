@@ -113,13 +113,13 @@ under `D:\New folder (2)\`.
 | Local path | Now on GitHub at | Action |
 |---|---|---|
 | `SAWA-------ALL\SAWA-validation-gate-update\SAWA-nextjs-source` | `Enigmasatyabrat/SAWA` | **Keep** — the active working clone |
-| ↳ `h origin maingit rm CLAUDE.md` (empty file from a mistyped command) | — | Delete |
+| ↳ `h origin maingit rm <notes file>` (empty file from a mistyped command) | — | Delete |
 | `SAWA-------ALL\SAWA-validation-gate-update\SAWA-static-build` | regenerable build output | Delete |
 | `SAWA-------ALL\SAWA-validation-gate-update\IMPROVEMENTS.md`, `VALIDATION_SYSTEM_PROMPT.md` | identical copies already in SAWA root | Delete |
 | `SAWA-------ALL\SAWA-validation-gate-update\screenshots` | soil-analysis-app#1 `archive/screenshots/validation-gate/` | Delete after #1 merges |
 | `SAWA-------ALL\files (4)\SAWA-v1.0` | fixes → #12 and #1; docs → this PR `docs/archive/v1.0/` + `ADR-SAWA-001`; memory → #1; `web/` superseded by SAWA | Delete after #12, this PR and #1 merge |
 | `SAWA-------ALL\SAWA (soil-analysis-app)` (incl. `.venv`, `venv`) | `Enigmasatyabrat/soil-analysis-app` | Delete the clone after #1 merges (re-clone if needed) |
-| `SAWA-------ALL\.claude\settings.local.json` | — (local tool permissions, not project data) | Your call; harmless to delete |
+| `SAWA-------ALL\<assistant settings folder>\settings.local.json` | — (local tool permissions, not project data) | Your call; harmless to delete |
 | `SAWA_files_v 0.1` — report, presentation, screenshots, register | soil-analysis-app#1 `archive/` | Delete after #1 merges … |
 | ↳ `ss's\2025 DSTL notes Unit 2.pdf`, `ss's\loops.py`, `ss's\export default function BackstageReality.html`, `ss's\2026-04-03.md` (empty) | **not on GitHub — not SAWA** | **Move to personal server first** |
 | `ZIPS and rest\SAWA_Research_Backbone_and_Master_Prompt.md` | this PR `docs/archive/SAWA-Research-Backbone-2026-06.md` | Delete after merge |

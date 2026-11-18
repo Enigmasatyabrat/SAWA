@@ -28,7 +28,7 @@ roadmap below — and the honest bottleneck is data, not modelling.
 
 ```
 SAWA/
-├── CLAUDE.md      # Working instructions for AI coding sessions — read first
+├── AGENTS.md      # Working instructions for AI coding sessions — read first
 ├── memory.md      # Current project state, decisions, single next action
 ├── backend/       # FastAPI + MongoDB — the algorithm source of truth
 ├── web/           # Next.js showcase site (client-side port of the pipeline)
@@ -50,7 +50,7 @@ with Next.js version-specific notes — heed those when editing it.)
 | File | What it's for |
 |---|---|
 | `memory.md` | **Start here.** Current state, what's real vs. planned, next action. |
-| `CLAUDE.md` | Instructions and non-negotiables for AI sessions on this repo. |
+| `AGENTS.md` | Instructions and non-negotiables for AI sessions on this repo. |
 | `docs/SAWA-Roadmap.docx` | The phased plan, printable, with checkboxes. |
 | `docs/SAWA-REC-INDEX.md` | Corpus index and architecture principles. |
 | `docs/ADR-SAWA-001.md` | Every architectural decision, with reasoning and verification. |

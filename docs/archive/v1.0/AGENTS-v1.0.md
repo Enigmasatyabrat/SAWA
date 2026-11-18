@@ -1,4 +1,4 @@
-# CLAUDE.md — working instructions for AI sessions on SAWA
+# AGENTS.md — working instructions for AI sessions on SAWA
 
 You are working on **SAWA**, a computer-vision soil and plant analysis
 project by Satyabrat Mishra (B.Tech CSE AI/ML, ITM GIDA Gorakhpur).

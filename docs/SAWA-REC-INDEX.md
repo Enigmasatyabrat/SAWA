@@ -85,7 +85,7 @@ architecture.
 | **IMP-SAWA-001** | Roadmap P0 … P7 with exit criteria | Written | D on durations |
 | **PUB-SAWA-001** | Claims audit of the site, publication plan | Written | A (audit read from source) |
 | `PHASE-1A-CAPTURE-PROTOCOL` | Field capture protocol (amended: grey card) | Written | — |
-| `archive/v1.0/*` | v1.0 index, roadmap, prompts, git guide, learning pathway, CLAUDE/README | Archived | — |
+| `archive/v1.0/*` | v1.0 index, roadmap, prompts, git guide, learning pathway, AGENTS/README | Archived | — |
 | `../design/*` | Design spec and clickable prototype | Draft (separate session) | — |
 
 ---
