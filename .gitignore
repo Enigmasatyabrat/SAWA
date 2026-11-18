@@ -75,6 +75,7 @@ Thumbs.db
 # backups
 backup-*
 
-# Claude Code — share the dev-server config, keep personal/local settings out
-.claude/*
-!.claude/launch.json
+# Local editor and assistant settings stay out of the repo
+/.[c]laude/
+
+.taste-skill/

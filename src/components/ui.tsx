@@ -4,10 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 
 export function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2 font-mono text-xs font-medium uppercase tracking-[0.14em] text-forest-deep">
-      <span className="h-1.5 w-1.5 rounded-full bg-sprout" />
-      {children}
-    </span>
+    <span className="text-base font-medium text-forest-deep">{children}</span>
   );
 }
 
@@ -43,10 +40,10 @@ export function StatCard({
   compare?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-line bg-surface p-6 transition-shadow hover:shadow-md hover:shadow-forest/5">
+    <div className="rounded-2xl bg-surface p-6">
       <p className="font-serif text-3xl font-semibold text-ink">{value}</p>
-      <p className="mt-1 text-sm font-medium text-ink">{label}</p>
-      {compare && <p className="mt-1 text-xs text-ink-faint">{compare}</p>}
+      <p className="mt-1 text-base font-medium text-ink">{label}</p>
+      {compare && <p className="mt-1 text-sm text-ink-soft">{compare}</p>}
     </div>
   );
 }
@@ -67,7 +64,7 @@ export function PrimaryButton({
     <Comp
       href={href}
       {...extraProps}
-      className={`inline-flex items-center justify-center gap-2 rounded-full bg-forest px-6 py-3.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-forest/25 ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-full bg-forest px-6 py-3.5 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-forest-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${className}`}
     >
       {children}
       <ArrowUpRight size={16} />
@@ -91,7 +88,7 @@ export function SecondaryButton({
     <Comp
       href={href}
       {...extraProps}
-      className={`inline-flex items-center justify-center gap-2 rounded-full border border-line-strong bg-surface px-6 py-3.5 text-sm font-semibold text-ink transition-all hover:-translate-y-0.5 hover:border-forest ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-full bg-surface px-6 py-3.5 text-base font-semibold text-ink transition-all hover:-translate-y-0.5 hover:bg-bg-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${className}`}
     >
       {children}
     </Comp>
@@ -121,20 +118,8 @@ export function CTABanner({
 }) {
   return (
     <div className="relative overflow-hidden rounded-3xl border border-line bg-forest px-6 py-16 text-center sm:px-16 sm:py-20">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, #ffffff 1px, transparent 1px)",
-          backgroundSize: "22px 22px",
-        }}
-      />
       <div className="relative mx-auto max-w-2xl">
-        <span className="inline-flex items-center gap-2 font-mono text-xs font-medium uppercase tracking-[0.14em] text-white/70">
-          <span className="h-1.5 w-1.5 rounded-full bg-sprout" />
-          {eyebrow}
-        </span>
+        <span className="text-base font-medium text-white/80">{eyebrow}</span>
         <h2 className="mt-4 text-balance font-serif text-3xl font-semibold leading-tight text-white sm:text-4xl">
           {title}
         </h2>
