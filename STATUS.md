@@ -23,7 +23,7 @@ or stubbed; change them only deliberately, with evidence.
 
 ## What changed since Phase 0 (`4c0dc8b`, 19 Aug 2026)
 
-`4c0dc8b` removed an empty `AGENTS.md` and is the last commit of the Phase 0
+`4c0dc8b` removed an empty agent notes file and is the last commit of the Phase 0
 consolidation. Since then, on `main`:
 
 1. `c1bc663` (21 Aug): **Phase 1A** photo collection pipeline (toolkit and scripts).
@@ -96,7 +96,7 @@ old copy of the Plan A repo whose 2.8 GB is untracked GoPro clips.
 
 ## Working rules carried over from the project notes
 
-From `files (4)/AGENTS.md` and `memory.md` (last updated 17 Aug, so older than this file):
+From `files (4)/AGENTS.md` (the agent notes) and `memory.md` (last updated 17 Aug, so older than this file):
 
 - Describe the nutrient numbers honestly: a hand-tuned heuristic, never "ML", "AI prediction" or "trained".
 - The K-Means colour extraction is real unsupervised clustering and can be described as such.
