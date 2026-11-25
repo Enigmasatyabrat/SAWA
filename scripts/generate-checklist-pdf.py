@@ -52,6 +52,7 @@ FIELD_SUMMARY = [
     ("LIGHT", "Open shade or light overcast, 10:00-15:00"),
     ("", "No direct sun, no golden hour, no shadow of your own on the dish"),
     ("DISH", "Same white dish every sample, soil leveled, no dish showing"),
+    ("CARD", "18% grey card at the same edge of the frame, every shot"),
     ("SAMPLE", "~500 g from the side wall at depth, debris out, do not dry it"),
     ("SHOTS", "3 per sample; tap centre to focus; exposure slider at 0"),
     ("CHECK", "Sharp / even light / fills frame / no glare / true colour / not dark"),
@@ -218,7 +219,7 @@ def draw_cover(pdf, qr_image, url: str, sample_ids: list[str]) -> None:
     pdf.showPage()
 
 
-def draw_sample_page(pdf, sample_id: str, index: int, total: int, qr_image, url: str) -> None:
+def draw_sample_page(pdf, sample_id: str, index: int, total: int, qr_image) -> None:
     y = PAGE_HEIGHT - MARGIN
 
     # --- header -----------------------------------------------------------
@@ -380,7 +381,7 @@ def main(argv=None) -> int:
         if not args.no_cover:
             draw_cover(pdf, qr_image, args.url, sample_ids)
         for index, sample_id in enumerate(sample_ids, start=1):
-            draw_sample_page(pdf, sample_id, index, len(sample_ids), qr_image, args.url)
+            draw_sample_page(pdf, sample_id, index, len(sample_ids), qr_image)
 
         pdf.save()
     except OSError as exc:
