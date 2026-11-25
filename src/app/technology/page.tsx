@@ -3,6 +3,8 @@ import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Reveal, Stagger, StaggerItem } from "@/components/Reveal";
 import { Eyebrow, CTABanner } from "@/components/ui";
+import Photo from "@/components/Photo";
+import { PHOTOS } from "@/lib/photos";
 
 export const metadata: Metadata = {
   title: "How It Works",
@@ -72,6 +74,10 @@ export default function TechnologyPage() {
         </Reveal>
       </section>
 
+      <section className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <Photo photo={PHOTOS.soilProfilingIndia} aspect="aspect-[16/9] sm:aspect-[21/9]" />
+      </section>
+
       {/* ================= VALIDATION GATE (client-side addition) ================= */}
       <section className="mx-auto max-w-4xl px-6 pt-6">
         <Reveal className="rounded-2xl border border-forest/25 bg-forest-10 p-6 sm:p-7">
@@ -118,6 +124,10 @@ export default function TechnologyPage() {
             </div>
           </div>
         </Reveal>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <Photo photo={PHOTOS.redFerrosol} aspect="aspect-[16/9]" />
       </section>
 
       {/* ================= PIPELINE ================= */}

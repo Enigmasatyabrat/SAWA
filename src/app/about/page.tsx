@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Reveal, Stagger, StaggerItem } from "@/components/Reveal";
 import { Eyebrow, StatCard, CTABanner } from "@/components/ui";
 import { GithubIcon, LinkedinIcon } from "@/components/BrandIcons";
+import Photo from "@/components/Photo";
+import { PHOTOS } from "@/lib/photos";
 
 export const metadata: Metadata = {
   title: "About the Project",
@@ -72,6 +74,10 @@ export default function AboutPage() {
             </p>
           </div>
         </Reveal>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <Photo photo={PHOTOS.ploughingBengal} aspect="aspect-[16/9] sm:aspect-[21/9]" />
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-10">
