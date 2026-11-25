@@ -57,13 +57,23 @@ VALID_MOISTURE = {"dry", "moist", "wet"}
 
 
 def read_csv_rows(path: Path) -> tuple[list[str], list[dict]]:
-    """Return (header, rows), stripping '#' comment lines and blank lines."""
+    """Return (header, rows), stripping '#' comment rows and blank rows.
+
+    Filtering happens per parsed record rather than per physical line: a notes
+    field may legitimately contain newlines (that is how Excel writes a
+    multi-line cell), and a line-level filter would drop the continuation --
+    taking the field's closing quote with it and swallowing later rows.
+    """
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        lines = [line for line in handle if line.strip() and not line.lstrip().startswith("#")]
-    if not lines:
+        records = [
+            record
+            for record in csv.reader(handle)
+            if any(cell.strip() for cell in record) and not record[0].lstrip().startswith("#")
+        ]
+    if not records:
         raise ValueError(f"{path} contains no header row")
-    reader = csv.DictReader(lines)
-    return list(reader.fieldnames or []), [row for row in reader]
+    header, *data = records
+    return header, [dict(zip(header, row)) for row in data]
 
 
 def read_leading_comments(path: Path) -> list[str]:

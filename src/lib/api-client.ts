@@ -6,6 +6,20 @@
 
 import type { RGB, Nutrients, SoilType } from "@/lib/soil-engine";
 
+/** Munsell notation of the photographed colour (see src/lib/munsell.ts). */
+export type MunsellWire = {
+  /** Nearest soil-chart chip for the image's overall colour, e.g. "7.5YR 3/2". */
+  notation: string;
+  /** Unrounded converter output, e.g. "8YR 3.1/2.4". */
+  precise: string;
+  /** Whether the hue is on a standard soil-chart page (10R–5Y). */
+  on_soil_chart: boolean;
+  /** Nearest chip for each dominant colour, index-aligned with `dominant_colors`. */
+  dominant: string[];
+  /** Always false until a reference card is detected in frame. */
+  calibrated: boolean;
+};
+
 /** Wire shape returned by POST /api/analyze-soil (snake_case, see API.md). */
 export type AnalysisResponse = {
   soil_type: SoilType;
@@ -13,6 +27,8 @@ export type AnalysisResponse = {
   color_percentages: number[];
   nutrients: Nutrients;
   recommended_crops: string[];
+  /** Absent if the conversion failed; the rest of the analysis is still valid. */
+  munsell?: MunsellWire;
   /** `null` when the analysis succeeded but the database write did not. */
   analysis_id: string | null;
   /** Present only when persistence failed; the analysis itself is still valid. */

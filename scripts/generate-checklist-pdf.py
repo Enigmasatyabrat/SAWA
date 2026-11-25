@@ -218,7 +218,7 @@ def draw_cover(pdf, qr_image, url: str, sample_ids: list[str]) -> None:
     pdf.showPage()
 
 
-def draw_sample_page(pdf, sample_id: str, index: int, total: int, qr_image, url: str) -> None:
+def draw_sample_page(pdf, sample_id: str, index: int, total: int, qr_image) -> None:
     y = PAGE_HEIGHT - MARGIN
 
     # --- header -----------------------------------------------------------
@@ -380,7 +380,7 @@ def main(argv=None) -> int:
         if not args.no_cover:
             draw_cover(pdf, qr_image, args.url, sample_ids)
         for index, sample_id in enumerate(sample_ids, start=1):
-            draw_sample_page(pdf, sample_id, index, len(sample_ids), qr_image, args.url)
+            draw_sample_page(pdf, sample_id, index, len(sample_ids), qr_image)
 
         pdf.save()
     except OSError as exc:
